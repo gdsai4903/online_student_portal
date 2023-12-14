@@ -1,0 +1,6 @@
+name: D:\DSML\COMP - 1296 Introduction to Programming Logic\Assignments\comp_1296_gagandeep_singh_assignment_6\.env
+channels:
+  - defaults
+dependencies:
+  - git=2.40.1=haa95532_1
+prefix: D:\DSML\COMP - 1296 Introduction to Programming Logic\Assignments\comp_1296_gagandeep_singh_assignment_6\.env
