@@ -108,7 +108,7 @@ class MakePayment:
             input("\nPress Enter to continue? ")
             break
         return taken_courses
-    
+
     def calculate_fee(self, taken_courses):
         """
         To calculate the fee of the student's selected courses.
@@ -119,7 +119,7 @@ class MakePayment:
         Returns:
             float: the calculated fee of the student's selected courses.
         """
-        
+
         # Calculating and printing the fee reciept
         print("\nYour fee will be calculated as following: ")
 
@@ -202,7 +202,6 @@ class MakePayment:
 
         return grand_total
 
-
     def make_payment(self, student_id, current_student):
         """
         To make a payment, and send the offer letter to the registered email.
@@ -216,18 +215,16 @@ class MakePayment:
             print("\nEnter your card details below:")
             card_num = input("Credit/Debit card number: ")
             if not len(card_num) == 16:
-                print_message('ERROR', 'Please enter a valid card number')
+                print_message("ERROR", "Please enter a valid card number")
                 continue
             while True:
                 try:
                     valid_thru = input("Valid thru: ")
-                    valid_thru = datetime.datetime.strptime(
-                        valid_thru, "%m/%y"
-                    )
+                    valid_thru = datetime.datetime.strptime(valid_thru, "%m/%y")
                     break
 
                 except ValueError:
-                    print_message("ERROR","Please enter a valid date")
+                    print_message("ERROR", "Please enter a valid date")
                     continue
             while True:
                 cvv = input("3 digit security code: ")
@@ -235,10 +232,11 @@ class MakePayment:
                     print_message("ERROR", "Enter Valid CVV")
                     continue
                 break
-                
 
-            response = input("Do you confirm the details abonve (yes/no): ").lower().strip()
-            if 'yes' in response:
+            response = (
+                input("Do you confirm the details abonve (yes/no): ").lower().strip()
+            )
+            if "yes" in response:
                 break
 
         # Asking the student for payment method
@@ -276,6 +274,6 @@ class MakePayment:
             print("\nYour status has not been changed to 'Enrolled'!")
             print("\nStudent status: ", current_student["status"])
 
-    
+
 if __name__ == "__main__":
     MakePayment(502156)
