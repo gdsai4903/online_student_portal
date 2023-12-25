@@ -1,6 +1,4 @@
 import os
-import pickle
-from prettytable import PrettyTable
 from functions import *
 
 # Getting the path to the current working directory.
