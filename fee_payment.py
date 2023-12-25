@@ -218,20 +218,24 @@ class MakePayment:
             if not len(card_num) == 16:
                 print_message('ERROR', 'Please enter a valid card number')
                 continue
-            try:
-                valid_thru = input("Valid thru: ")
-                valid_thru = datetime.datetime.strptime(
-                    valid_thru, "%m/%Y"
-                )
+            while True:
+                try:
+                    valid_thru = input("Valid thru: ")
+                    valid_thru = datetime.datetime.strptime(
+                        valid_thru, "%m/%y"
+                    )
+                    break
 
-            except Exception as e:
-                print_message("ERROR","Please enter a valid date",e)
-                continue
-
-            cvv = input("3 digit security code: ")
-            if not len(cvv) == 3:
-                print_message("ERROR", "Enter Valid CVV")
-                continue
+                except ValueError:
+                    print_message("ERROR","Please enter a valid date")
+                    continue
+            while True:
+                cvv = input("3 digit security code: ")
+                if not len(cvv) == 3:
+                    print_message("ERROR", "Enter Valid CVV")
+                    continue
+                break
+                
 
             response = input("Do you confirm the details abonve (yes/no): ").lower().strip()
             if 'yes' in response:
@@ -252,7 +256,7 @@ class MakePayment:
             print_message("CONGRATULATIONS", "you have paid your fee successfully")
 
             # Changing the student status to approved.
-            current_student["status"] = "Enrolled"
+            # current_student["status"] = "Enrolled"
 
             # Displaying the change of status
             print("\nYour status has now been changed to 'Enrolled'!")
