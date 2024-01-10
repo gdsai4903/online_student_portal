@@ -48,7 +48,8 @@ class LoginParent:
         This function is used to get a hidden input from the user.
 
         Args:
-            prompt (str, optional): The prompt to display to the user. Defaults to "Enter your password: ".
+            prompt (str, optional): The prompt to display to the user. Defaults 
+            to "Enter your password: ".
 
         Returns:
             str: The hidden input from the user.
@@ -165,7 +166,8 @@ class Register(LoginParent):
             except InvalidUsernameError:
                 print_long_message(
                     "WARNING",
-                    "invalid username, it must be 5 to 20 characters long and must not contain any special character except underscore '_'",
+                    "invalid username, it must be 5 to 20 characters long and" 
+                    "must not contain any special character except underscore '_'",
                     55,
                 )
 
@@ -180,7 +182,9 @@ class Register(LoginParent):
                     else:
                         print_long_message(
                             "WARNING",
-                            "please choose a stronger password, it must contain: an uppercase, a lowercase, a number and, a special character and must be atleast 8 characters long",
+                            "please choose a stronger password, it must contain:"
+                            "an uppercase, a lowercase, a number and, a special"
+                            "character and must be atleast 8 characters long",
                             55,
                         )
 
