@@ -41,6 +41,7 @@ OTHER_CHARGES = {
 }
 
 # Setting the position of the reciept
+WIDTH = 65
 SPACING = " " * 16
 
 def print_header(heading="heading", sub_heading=None):
@@ -52,12 +53,12 @@ def print_header(heading="heading", sub_heading=None):
         sub_heading (_type_, optional): Optional sub heading to be printed below
                                         the headhing. Defaults to None.
     """
-    print("=" * 65)
-    print(f"{heading.upper()}".center(65))
+    print("=" * WIDTH)
+    print(f"{heading.upper()}".center(WIDTH))
     if sub_heading:
-        print(str("-" * (len(sub_heading) + 4)).center(65))
-        print(f"{sub_heading.title()}".center(65))
-    print("=" * 65)
+        print(str("-" * (len(sub_heading) + 4)).center(WIDTH))
+        print(f"{sub_heading.title()}".center(WIDTH))
+    print("=" * WIDTH)
 
 def print_message(head="Heading", message="meassage"):
     """
@@ -71,12 +72,12 @@ def print_message(head="Heading", message="meassage"):
         returns nothing, just prints the message
     """
     # Printing the success message and displaying the student ID.
-    print("\n" + f"{head}".center(65))
-    print(str("-" * (len(message) - 2)).center(65))
-    print(f"*{message}*".center(65))
+    print("\n" + f"{head}".center(WIDTH))
+    print(str("-" * (len(message) - 2)).center(WIDTH))
+    print(f"*{message}*".center(WIDTH))
 
 
-def print_long_message(head="HEADING", message="message", width=65):
+def print_long_message(head="HEADING", message = "message", width = WIDTH):
     """
     Prints a long message and wraps it to the width as specified as
     specified in the arguments.
@@ -92,10 +93,10 @@ def print_long_message(head="HEADING", message="message", width=65):
     """
     message = textwrap.fill(message, width)
     # message = message.center(width)
-    print("\n" + f"{head}".center(65))
-    print(str("-" * width).center(65))
+    print("\n" + f"{head}".center(WIDTH))
+    print(str("-" * width).center(WIDTH))
     for line in message.splitlines():
-        centered_line = line.center(65)
+        centered_line = line.center(WIDTH)
         print(centered_line)
 
 
@@ -159,9 +160,9 @@ def print_thankyou():
     """
     print the thankyou message wherever needed
     """
-    print("\n" + "=" * 65)
-    print("THANK YOU".center(65))
-    print("=" * 65)
+    print("\n" + "=" * WIDTH)
+    print("THANK YOU".center(WIDTH))
+    print("=" * WIDTH)
     print("\n")
 
 

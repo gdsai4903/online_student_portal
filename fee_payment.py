@@ -265,7 +265,7 @@ class MakePayment:
             except Exception as e:
                 print(e)
 
-            print("\n" + "*an email has been sent to your registered email*".center(65))
+            print("\n" + "*an email has been sent to your registered email*".center(WIDTH))
 
         else:
             print_message("ERROR", "fee could not be paid")

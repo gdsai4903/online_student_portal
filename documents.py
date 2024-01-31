@@ -23,14 +23,14 @@ class Documents:
 
         # Checking if the student is already approved or enrolled.
         if status == "Approved":
-            print("\n" + "ATTENTION".center(65))
-            print(("-" * 40).center(65))
-            print("*you have already" " uploaded your documents*".center(65))
+            print("\n" + "ATTENTION".center(WIDTH))
+            print(("-" * 40).center(WIDTH))
+            print("*you have already" " uploaded your documents*".center(WIDTH))
 
         elif status == "Enrolled":
-            print("\n" + "ATTENTION".center(65))
-            print(("-" * 40).center(65))
-            print("*you are already enrolled, no need to submit*".center(65))
+            print("\n" + "ATTENTION".center(WIDTH))
+            print(("-" * 40).center(WIDTH))
+            print("*you are already enrolled, no need to submit*".center(WIDTH))
 
         elif status == "Candidate":
             # Asking the user to upload the documents.
