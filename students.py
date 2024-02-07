@@ -23,6 +23,9 @@ class Student:
             self.student_id = random.randint(100000, 999999)
 
     def get_detials(self):
+        """
+        This function is to get the details of the student.
+        """
         print_header(
             "WELCOME TO ONLINE REGISTRATION PORTAL", "Red River College polytech"
         )

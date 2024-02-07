@@ -13,13 +13,37 @@ import getpass
 
 
 class LoginParent:
+    """
+    This is the parent class for the login and register scripts.
+    """
     def get_username(self):
+        """
+        This function is used to get the username from the user.
+
+        Returns:
+            str: The username from the user.
+        """
         return self.username
 
     def get_password(self):
+        """
+        This function is used to get the password from the user.
+
+        Returns:
+            str: The password from the user.
+        """
         return self.password
 
     def is_valid_password(self, password):
+        """
+        This function is used to check if the password is valid.
+
+        Args:
+            password (str): The password to check.
+        
+        Returns:
+            bool: True if the password is valid, False otherwise.
+        """
         # Check if the password has at least 8 characters
         if len(password) < 8:
             return False
@@ -85,6 +109,9 @@ class LoginParent:
 
 
 class Login(LoginParent):
+    """
+    This is the login script.
+    """
     def __init__(self):
         print_header("LOGIN", "log into your RRC account")
 
@@ -113,6 +140,12 @@ class Login(LoginParent):
         self.user = self.user_dict
 
     def get_user(self):
+        """
+        This is to get the user from the user table
+
+        Returns:
+            dict: the user from the user table
+        """
         return self.user, self.username
 
     def get_student_id(self):

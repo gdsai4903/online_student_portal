@@ -21,6 +21,13 @@ SENDER_EMAIL = "gdsai4903@gmail.com"
 
 
 def send_offer_letter(student_id, student):
+    """
+    To send the offer letter to the registered email.
+
+    Args:
+        student_id (int): the student id of the student
+        student (dict): the student's data dictionary
+    """
     # Email configuration
     receiver_email = student["email"]
     subject = "OFFER LETTER"
@@ -905,7 +912,17 @@ def send_offer_letter(student_id, student):
     send_mail(SENDER_EMAIL, receiver_email, subject, body)
 
 
-def send_otp(student_email, student_name, otp, purpose, fee):
+def send_otp(student_email, student_name, otp, purpose, fee=None):
+    """
+    Send email for otp
+    
+    Args:
+      student_email (str): student email
+      student_name (str): student name
+      otp (int): otp
+      purpose (str): purpose of otp
+      fee (float): fee of otp
+    """
     # Email configuration
     receiver_email = student_email
 
@@ -941,6 +958,15 @@ def send_otp(student_email, student_name, otp, purpose, fee):
 
 
 def verify_email(student_email, student_name, purpose="register", fee=None):
+    """
+    Verify email
+    
+    Args:
+    student_email (str): student email
+    student_name (str): student name
+    purpose (str): purpose 
+    fee (float): fee 
+    """
     # creating otp
     otp = random.randint(100000, 999999)
 
@@ -966,6 +992,15 @@ def verify_email(student_email, student_name, purpose="register", fee=None):
 
 
 def send_mail(SENDER_EMAIL, receiver, subject, body):
+    """
+    Send email
+    
+    Args:
+      SENDER_EMAIL (str): sender email
+      receiver (str): receiver email
+      subject (str): subject
+      body (str): body
+    """
     # Create the MIME object
     message = MIMEMultipart()
     message["From"] = SENDER_EMAIL
