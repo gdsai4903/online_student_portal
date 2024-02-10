@@ -166,6 +166,12 @@ class Student:
         save_data(self.student_dict, CURRENT_PATH, "data/student_data.pickle")
 
     def get_student_id(self):
+        """
+        Returns the student id generated for the student
+
+        Returns:
+            int: student id of the student
+        """
         return self.student_id
 
     def get_student_status(self):
