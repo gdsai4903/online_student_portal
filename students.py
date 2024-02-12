@@ -32,31 +32,56 @@ class Student:
         print("\nPlease enter your details below:")
         print("-" * 32)
 
-        # Getting and validating student name
+        self.student_name = self.get_name()
+        self.student_dob = self.get_dob()
+        self.student_phone = self.get_phone()
+        self.student_email = self.get_email()
+        self.student_address = input("| Address: ").lower()
+        self.student_father_name = input("| Father Name: ").lower()
+        self.student_mother_name = input("| Mother Name: ").lower()
+        self.status = "Candidate"
+
+        # Prompting the student with their student ID
+        print("\nYour new student ID is:", self.student_id)
+
+        self.save_student()
+        
+    def get_name(self):
+        """
+        To get the name of the student
+
+        Returns:
+            str: name of the student
+            
+        Raises:
+            ValueError: if field left empty
+        """
         while True:
             try:
-                self.student_name = input("| Name: ").lower()
-                if self.student_name == "":
+                student_name = input("| Name: ").lower()
+                if student_name == "":
                     raise ValueError
                 break
             except ValueError:
                 print_message("WARNING", "you can't leave this field blank")
-
+        return student_name
+    
+    def get_dob(self):
         # Getting and validating student's age
         while True:
             try:
-                self.student_dob = input("| Date Of Birth (MM/DD/YYYY): ")
-                self.student_dob = datetime.datetime.strptime(
-                    self.student_dob, "%m/%d/%Y"
+                student_dob = input("| Date Of Birth (MM/DD/YYYY): ")
+                student_dob = datetime.datetime.strptime(
+                    student_dob, "%m/%d/%Y"
                 )
 
-                self.age = self.calculate_age(self.student_dob)
+                self.age = self.calculate_age(student_dob)
 
                 if self.age < 18 or self.age > 35:
                     raise InvalidDOBError
 
-                self.student_dob = self.student_dob.date()
-                self.student_dob = self.student_dob.strftime("%B %d, %Y")
+                student_dob = student_dob.date()
+                student_dob = student_dob.strftime("%B %d, %Y")
                 break
 
             except InvalidDOBError:
@@ -64,21 +89,28 @@ class Student:
                 print()
 
             except Exception as e:
-                print_message("ERROR", f"please enter valid date{e}")
+                print_message("ERROR", f"please enter valid date")
+        return student_dob
+    
+    def get_phone(self):
+        """
+        To get the phone of the student
 
-        # Getting and validating student's phone
+        Returns:
+            str: phone of the student
+        """
         while True:
             try:
-                self.student_phone = input("| Phone: ")
+                student_phone = input("| Phone: ")
 
                 # checking if the phone is 10 digits long and only numeric
-                if (not len(self.student_phone) == 10) or (
-                    not self.student_phone.isnumeric()
+                if (not len(student_phone) == 10) or (
+                    not student_phone.isnumeric()
                 ):
                     raise ValueError
 
                 for student in self.student_dict.keys():
-                    if self.student_phone == self.student_dict[student]["phone"]:
+                    if student_phone == self.student_dict[student]["phone"]:
                         raise PhoneAlreadyExistsError
 
                 break
@@ -88,23 +120,30 @@ class Student:
 
             except PhoneAlreadyExistsError:
                 print_message("WARNIG", "phone number already in use")
+        return student_phone
+    
+    def get_email(self):
+        """
+        To get the email of the student
 
-        # Getting and validating student's email
+        Returns:
+            str: email of the student
+        """
         while True:
             try:
-                self.student_email = input("| Email: ").lower()
+                student_email = input("| Email: ").lower()
 
-                if not "@" in self.student_email:
+                if not "@" in student_email:
                     raise ValueError
 
-                if not self.student_email.split("@")[1] in VALID_DOMAINS:
+                if not student_email.split("@")[1] in VALID_DOMAINS:
                     raise ValueError
 
                 for student in self.student_dict.keys():
-                    if self.student_email == self.student_dict[student]["email"]:
+                    if student_email == self.student_dict[student]["email"]:
                         raise EmailAlreadyExistsError
 
-                verify_email(self.student_email, self.student_name)
+                verify_email(student_email, self.student_name)
 
                 break
 
@@ -113,30 +152,8 @@ class Student:
 
             except EmailAlreadyExistsError:
                 print_message("WARNIG", "email already in use")
-
-        self.student_address = input("| Address: ").lower()
-        self.student_father_name = input("| Father Name: ").lower()
-        self.student_mother_name = input("| Mother Name: ").lower()
-        self.status = "Candidate"
-
-        # Prompting the student with their student ID
-        print("\nYour new student ID is:", self.student_id)
-
-        self.new_student = {
-            self.student_id: {
-                "name": self.student_name,
-                "DOB": self.student_dob,
-                "phone": self.student_phone,
-                "email": self.student_email,
-                "address": self.student_address,
-                "father_name": self.student_father_name,
-                "mother_name": self.student_mother_name,
-                "status": self.status,
-            }
-        }
-
-        self.save_student()
-
+        return student_email
+    
     def calculate_age(self, date_of_birth):
         """
         To calculate the age of teh student
@@ -159,8 +176,22 @@ class Student:
         """
         To save the entered student data to the file
         """
+        
+        new_student = {
+            self.student_id: {
+                "name": self.student_name,
+                "DOB": self.student_dob,
+                "phone": self.student_phone,
+                "email": self.student_email,
+                "address": self.student_address,
+                "father_name": self.student_father_name,
+                "mother_name": self.student_mother_name,
+                "status": self.status,
+            }
+        }
+        
         # Adding the student to the main dictionary.
-        self.student_dict.update(self.new_student)
+        self.student_dict.update(new_student)
 
         # Saving the dictionary.
         save_data(self.student_dict, CURRENT_PATH, "data/student_data.pickle")
