@@ -7,35 +7,35 @@ This file contains the script for the upload documents section.
 Date: December 2, 2023
 """
 import platform
+import time
 from functions import *
 from PyQt5.QtWidgets import QApplication, QFileDialog, QWidget
 
 
 class Documents:
-    def __init__(self, student_id):
+    def __init__(self, username):
         print_header("UPLOAD DOCUMENTS", "Red River College Polytech")
-        student_dict = read_data(CURRENT_PATH, "data/student_data.pickle")
-        current_student = student_dict[student_id]
-        name = student_dict[student_id]["name"]
-        status = current_student["status"]
-
-        print_student_details(current_student)
+        con = sqlite3.connect('database/student.db')
+        cur = con.cursor()
+        student_id = cur.execute("SELECT student_id FROM student WHERE username =?", (username,)).fetchone()[0]
+        status = get_status(username)
+        print_student_details(username)
 
         # Checking if the student is already approved or enrolled.
-        if status == "Approved":
+        if status == "A":
             print("\n" + "ATTENTION".center(WIDTH))
             print(("-" * 40).center(WIDTH))
             print("*you have already" " uploaded your documents*".center(WIDTH))
 
-        elif status == "Enrolled":
+        elif status == "E":
             print("\n" + "ATTENTION".center(WIDTH))
             print(("-" * 40).center(WIDTH))
             print("*you are already enrolled, no need to submit*".center(WIDTH))
 
-        elif status == "Candidate":
+        elif status == "C":
             # Asking the user to upload the documents.
             documents_upload = (
-                input("\nType 'upload' to " + "upload your documents: ").lower().strip()
+                input("\nType 'upload' to upload your documents: ").lower().strip()
             )
 
             # Confirming upload.
@@ -50,7 +50,7 @@ class Documents:
                     choice = input("> ").strip().lower()
 
                     if "yes" in choice:
-                        self.save_docs(doc, student_id, name)
+                        self.save_docs(doc, student_id, username)
 
                         print_message(
                             "CONGRATULATIONS",
@@ -58,11 +58,11 @@ class Documents:
                         )
 
                         # Changing the student status to approved.
-                        current_student["status"] = "Approved"
+                        set_status(username, 'A')
 
                         # Displaying the change of status
                         print("\nYour status has now been changed to 'Approved'!")
-                        print("\nStudent status: ", current_student["status"])
+                        print("\nStudent status: ", get_status(username))
                         break
 
                     elif "no" in choice:
@@ -73,14 +73,8 @@ class Documents:
 
                         # Displaying the change of status
                         print("\nYour status has not been changed!")
-                        print("\nStudent status: ", current_student["status"])
+                        print("\nStudent status: ", get_status(username))
                         break
-
-            student = {student_id: current_student}
-
-            student_dict.update(student)
-
-            save_data(student_dict, CURRENT_PATH, "data/student_data.pickle")
 
     def get_docs(self):
         """
@@ -109,7 +103,7 @@ class Documents:
             win.show()
             return path
 
-    def save_docs(self, file_path, student_id, name):
+    def save_docs(self, file_path, student_id, username):
         """
         This function is to save the selected documents and save them to the
         student's dedicated folder.
@@ -121,15 +115,26 @@ class Documents:
         """
         if file_path:
             # Create a directory for the student
-            student_directory = f"./documents/{student_id}_{name.replace(' ', '_')}"
+            student_directory = f"./documents"
             os.makedirs(student_directory, exist_ok=True)
 
             file_name = file_path.split("/")[-1]  # Extract the file name from the path
-            new_path = f"./documents/{student_id}_{name.replace(' ', '_')}/" + file_name
+            new_file_name = str(int(time.time())) + '_' + username + '_'  + file_name.replace(' ', '_')
+            new_path = f"./documents/{new_file_name}"
 
             with open(file_path, "rb") as source, open(new_path, "wb") as destination:
                 destination.write(source.read())
-
+                
+            con = sqlite3.connect('database/student.db')
+            cur = con.cursor()
+            
+            query = """INSERT INTO document (student_id, doc_name)
+                       VALUES (?,?)"""
+                       
+            cur.execute(query, (student_id, new_file_name))
+            
+            con.commit()
+            con.close()
 
 class DocumentUploadApp(QWidget):
     def __init__(self):
@@ -152,4 +157,4 @@ class DocumentUploadApp(QWidget):
 
 
 if __name__ == "__main__":
-    doc = Documents(763351)
+    doc = Documents('gsingh123')

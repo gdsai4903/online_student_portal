@@ -6,33 +6,30 @@ This file has the script for the fee payment
 @author: Gagandeep Singh
 Date: December 2, 2023
 """
+import sqlite3
 from functions import *
 from send_email import *
 
 
 class MakePayment:
-    def __init__(self, student_id):
+    def __init__(self, username):
         clear_terminal()
         # Printing the heading of the UI.
         print_header("FEE PAYMENT", "Red River College Polytech")
 
-        student_dict = read_data(CURRENT_PATH, "data/student_data.pickle")
+        print_student_details(username)
 
-        current_student = student_dict[student_id]
-
-        print_student_details(current_student)
-
-        status = current_student["status"]
+        status = get_status(username)
 
         # Checking if the student is already enrolled.
-        if status == "Enrolled":
+        if status == "E":
             print_message("ATTENTION", "you have aleady paid your fee")
 
         # Checking if the student is just a candidate.
-        elif status == "Candidate":
+        elif status == "C":
             print_message("ATTENTION", "upload your documents first to pay your fee")
 
-        elif status == "Approved":
+        elif status == "A":
             # Creating empty list to store courses taken.
             taken_courses = self.offer_courses()
 
@@ -63,42 +60,54 @@ class MakePayment:
             print("\nFrom the given list of courses, choose atleast 3:")
 
             # Printing the header for courses
-            print("-" * 33)
-            print("    COURSE NAME           FEE")
-            print("-" * 33)
+            print("-" * 35)
+            print("  C_ID   COURSE NAME           FEE")
+            print("-" * 35)
 
-            for n, subject in enumerate(COURSES.keys()):
+            course_ids = []
+            for row in self.fetch_courses():
+                course_ids.append(row[0])
                 print(
-                    f"|{n+1}. {subject.title()}:"
-                    f"{('$' + str(COURSES[subject][0])).rjust(COURSES[subject][1])}"
+                    f" |{row[0]}.  {row[1]}:"
+                    f"{('$' + str(row[2])).rjust(25-len(row[1]))}"
                 )
 
             while True:
                 try:
                     print(
-                        "\nType the indexes of courses you want to take"
+                        "\nType the c_id of courses you want to take"
                         " separated by commas','."
                     )
                     response = input("> ")
-                    courses_indexes = []
+                    courses_chosen = []
                     for x in response.split(","):
                         n = int(x.strip())
-                        if n in [1, 2, 3, 4, 5]:
-                            courses_indexes.append(n)
+                        if n in course_ids:
+                            courses_chosen.append(n)
                         else:
                             raise ValueError
 
                     break
                 except ValueError:
-                    print_message("CAUTION", 'invalid input. sample input: "1, 2, 3"')
+                    print_message("CAUTION", 'invalid input. sample input: "1001, 1002, 1003"')
 
-            if len(courses_indexes) >= 3:
-                course_name = list(COURSES.keys())
+            if len(courses_chosen) >= 3:
+                con = sqlite3.connect('database/student.db')
+                cur = con.cursor()
+                
+                placeholder = ','.join('?' for _ in courses_chosen)
+                query = f"SELECT course_name FROM course WHERE course_id IN ({placeholder})"
+                
+                cur.execute(query, courses_chosen)
+                course_name = cur.fetchall()
+                
+                con.close()
+                
                 # printing the courses selected.
                 print("\nYou have selected the following courses:")
-                for n, c in enumerate(courses_indexes):
-                    print(f"|{n+1}. {course_name[c-1]}")
-                    taken_courses.append(course_name[c - 1])
+                for n, row in enumerate(course_name):
+                    print(f" |{n+1}. {row[0]}")
+                    taken_courses.append(row[0])
             else:
                 print_message("CAUTION", "you have to take atleast 3 courses.")
                 print()
@@ -108,6 +117,34 @@ class MakePayment:
             input("\nPress Enter to continue? ")
             break
         return taken_courses
+
+    def fetch_courses(self):
+        con = sqlite3.connect('database/student.db')
+        cur = con.cursor()
+        
+        query = "SELECT course_id, course_name, course_fee FROM course WHERE active=1"
+        
+        cur.execute(query)
+        
+        courses = cur.fetchall()
+        
+        con.close()
+        
+        return courses
+    
+    def fetch_amenities(self):
+        con = sqlite3.connect('database/student.db')
+        cur = con.cursor()
+        
+        query = "SELECT amenity_name, amenity_fee FROM amenity WHERE active=1"
+        
+        cur.execute(query)
+        
+        amenities = cur.fetchall()
+        
+        con.close()
+        
+        return amenities
 
     def calculate_fee(self, taken_courses):
         """
@@ -276,4 +313,4 @@ class MakePayment:
 
 
 if __name__ == "__main__":
-    MakePayment(502156)
+    MakePayment('gsingh123')

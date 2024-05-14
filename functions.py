@@ -10,6 +10,8 @@ Date: December 2, 2023
 import os
 import pickle
 import textwrap
+import sqlite3
+import hashlib
 
 # Getting the path to current working directory.
 CURRENT_PATH = os.getcwd()
@@ -23,23 +25,6 @@ VALID_DOMAINS = ["gmail.com", "rrc.ca", "academic.rrc.ca", "outlook.com",
 GST = 7  # in percentage (%)
 PST = 5  # in percentage (%)
 DISCOUNT = 5  # in percentage (%)
-
-# this dictionary will be used to reffer to each course and its fee.
-COURSES = {
-    "Linear Algebra": [1700, 25 - len("Linear Algebra")],
-    "Statistics": [1650, 25 - len("Statistics")],
-    "Programming": [1300, 25 - len("Programming")],
-    "Communications": [1100, 25 - len("Communications")],
-    "Intro to DSML": [1600, 25 - len("Intro to DSML")],
-}
-
-# this dictionary will be used to reffer to each additional expense
-OTHER_CHARGES = {
-    "Association Fee": [150, len("Association Fee")],
-    "Textbooks": [2000, len("Textbooks")],
-    "Recreational Fee": [50, len("Recreational Fee")],
-    "Building Fee": [20, len("Building Fee")],
-}
 
 # Setting the position of the reciept
 WIDTH = 65
@@ -101,7 +86,8 @@ def print_long_message(head="HEADING", message="message", width=WIDTH):
     print(str("-" * width).center(WIDTH))
     for line in message.splitlines():
         centered_line = line.center(WIDTH)
-        print(centered_line)
+        print(centered_line)    
+    print()    
 
 
 def read_data(path, file_name):
@@ -137,7 +123,7 @@ def save_data(file, path, file_name):
         pickle.dump(file, f)
 
 
-def print_student_details(current_student):
+def print_student_details(username):
     """Prints the students details from the dictionary."
 
     Args:
@@ -146,17 +132,23 @@ def print_student_details(current_student):
     Returns:
         None
     """
+    con = sqlite3.connect('database/student.db')
+    cur = con.cursor()
+    
+    query = "SELECT * FROM student WHERE username = ?"
+    cur.execute(query, (username,))
+    current_student = cur.fetchone()
+    con.close()
+    
     # Displaying the details student have entered.
     print("\nConfirm your Student Details:")
     print("-" * 30)
-    print("| Name:         ", current_student["name"].title())
-    print("| Date Of Birth:", current_student["DOB"])
-    print("| Phone:        ", current_student["phone"])
-    print("| Email:        ", current_student["email"])
-    print("| Address:      ", current_student["address"].title())
-    print("| Father Name:  ", current_student["father_name"].title())
-    print("| Mother Name:  ", current_student["mother_name"].title())
-    print(f"\n| Student Status: {current_student['status']}")
+    print("| Name:         ", current_student[1] + ' ' + current_student[2])
+    print("| Date Of Birth:", current_student[3])
+    print("| Email:        ", current_student[4])
+    print("| Phone:        ", current_student[7])
+    print("| Address:      ", current_student[8].title())
+    print(f"\n| Student Status: {current_student[9]}")
 
 
 def print_thankyou():
@@ -174,7 +166,127 @@ def clear_terminal():
     For clearing the terminal for better UI
     """
     os.system("cls" if os.name == "nt" else "clear")
+    
+def fetch_user(user_name):
+    conn = sqlite3.connect('database/student.db')
+    cursor = conn.cursor()
+    
+    res = cursor.execute(f"""SELECT * FROM user WHERE user_name = '{user_name}'""")
+    return res.fetchall()[0]
 
+def get_user_names():
+    conn = sqlite3.connect('database/student.db')
+    cursor = conn.cursor()
+    
+    res = cursor.execute(f"""SELECT username FROM student""")
+    return res.fetchall()
+
+def get_student_id(username):
+    con = sqlite3.connect('database/student.db')
+    cur = con.cursor()
+    
+    query = "SELECT student_id FROM student WHERE username = ?"
+    
+    cur.execute(query, (username,))
+    student_id = cur.fetchone()[0]
+    
+    cur.close()
+    
+    return student_id
+
+def get_status(username):
+    con = sqlite3.connect('database/student.db')
+    cur = con.cursor()
+    
+    query = "SELECT status FROM student WHERE username = ?"
+    
+    cur.execute(query, (username,))
+    status = cur.fetchone()[0]
+    
+    cur.close()
+    
+    return status
+
+def set_status(username, status):
+    con = sqlite3.connect('database/student.db')
+    cur = con.cursor()
+    
+    query = f"UPDATE student SET status = ? WHERE username = ?"
+    
+    cur.execute(query, (status, username))
+    
+    con.commit()
+    con.close()
+
+def update_value(username, column, value):
+    con = sqlite3.connect('database/student.db')
+    cur = con.cursor()
+    
+    query = f"UPDATE student SET {column} = ? WHERE username = ?"
+    
+    cur.execute(query, (value, username))
+    
+    con.commit()
+    con.close()
+
+def insert_user(username, password):
+    query = """INSERT INTO student (username, password) VALUES (?, ?)"""
+    
+    con = sqlite3.connect("database/student.db")
+    cur = con.cursor()
+    
+    cur.execute(query, (username, MD5(password)))
+    
+    con.commit()
+    con.close()
+    
+def insert_student_details(username, f_name, l_name, dob, email, phone, addr):
+    con = sqlite3.connect('database/student.db')
+    cur = con.cursor()
+    
+    query = f"""UPDATE student SET (first_name
+                                  , last_name
+                                  , dob
+                                  , email
+                                  , phone
+                                  , addr)
+                    = (?,?,?,?,?,?)
+                    WHERE username=?"""
+                    
+    cur.execute(query, (f_name
+                      , l_name
+                      , dob
+                      , email
+                      , phone
+                      , addr
+                      , username))
+    con.commit()
+
+def value_exists(table, column, value):
+        """
+        Check if a value exists in a specified column of a table.
+        
+        Parameters:
+        table (str): The name of the table.
+        column (str): The name of the column.
+        value (str): The value to check for.
+
+        Returns:
+        bool: True if the value exists, False otherwise.
+        """
+        con = sqlite3.connect("database/student.db")
+        cur = con.cursor()
+
+        query = f"SELECT 1 FROM {table} WHERE {column} = ?"
+        cur.execute(query, (value,))
+        result = cur.fetchone()
+        
+        con.close()
+        
+        return result is not None 
+    
+def MD5(password):
+    return hashlib.md5(password.encode()).hexdigest()
 
 class PhoneAlreadyExistsError(Exception):
     """phone number aleary in use"""
@@ -223,4 +335,6 @@ class InvalidDOBError(Exception):
 
 
 if __name__ == "__main__":
-    print_header("hello", "world")
+    # print_header("hello", "world")
+    # print(fetch_user('gdsai4903@gmail.com'))
+    print(get_status('gsingh123'))

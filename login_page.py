@@ -8,9 +8,11 @@ Date: December 2, 2023
 """
 import re
 import platform
-from functions import *
 import getpass
+from functions import *
 
+con = sqlite3.connect('database/student.db')
+cur = con.cursor()
 
 class LoginParent:
     """
@@ -114,9 +116,7 @@ class Login(LoginParent):
     """
     def __init__(self):
         print_header("LOGIN", "log into your RRC account")
-
-        self.user_dict = read_data(CURRENT_PATH, "data/user_data.pickle")
-
+        
         print("\nEnter your login credentials below.")
 
         while True:
@@ -124,61 +124,21 @@ class Login(LoginParent):
             self.username = input("> ").strip()
 
             print("\nPassword:")
-            self.password = super().get_hidden_input("> ")
+            self.password = MD5(super().get_hidden_input("> "))
 
             try:
-                if (not self.username in self.user_dict.keys()) or (
-                    not self.password == self.user_dict[self.username]["password"]
-                ):
+                self.user = cur.execute("SELECT * FROM student WHERE username = ?", (self.username,)).fetchone()
+                if (not self.user) or (not self.user[6] == self.password):
                     raise WrongLoginCredentials
-
                 break
 
             except WrongLoginCredentials:
                 print_message("CAUTION", "username or password are incorrect")
-
-        self.user = self.user_dict
-
-    def get_user(self):
-        """
-        This is to get the user from the user table
-
-        Returns:
-            dict: the user from the user table
-        """
-        return self.user, self.username
-
-    def get_student_id(self):
-        """
-        this is to get the student id from the user table
-
-        Returns:
-            int: the student id from the user table
-        """
-        return self.user[self.username]["student id"]
-
-    def update_student_id(self, student_id):
-        """
-        This is to update the student id in the user table from the default 
-        value that is 0.
-
-        Args:
-            student_id (int): the student id assigned to the new student.
-
-        Returns:
-            None
-        """
-        self.user[self.username]["student id"] = student_id
-        self.user_dict.update(self.user)
-        save_data(self.user_dict, CURRENT_PATH, "data/user_data.pickle")
-
+                
 
 class Register(LoginParent):
     def __init__(self):
         print_header("REGISTER", "create your new account with RRC")
-
-        # Reading user data
-        self.user_dict = read_data(CURRENT_PATH, "data/user_data.pickle")
 
         print("\nCreate your credentials below.")
 
@@ -186,7 +146,7 @@ class Register(LoginParent):
             try:
                 print("\nUsername:")
                 self.username = input("> ").strip()
-                if self.username in self.user_dict.keys():
+                if value_exists('student', 'username', self.username):
                     raise UserAlreadyExistsError
 
                 if not self.is_valid_username(self.username):
@@ -203,6 +163,8 @@ class Register(LoginParent):
                     "must not contain any special character except underscore '_'",
                     55,
                 )
+            
+            return get_student_id(self.username, self.password)
 
         while True:
             try:
@@ -210,9 +172,7 @@ class Register(LoginParent):
                     print("\nCreate Password:")
                     self.password = super().get_hidden_input("> ")
 
-                    if self.is_valid_password(self.password):
-                        break
-                    else:
+                    if not self.is_valid_password(self.password):
                         print_long_message(
                             "WARNING",
                             "please choose a stronger password, it must contain:"
@@ -220,6 +180,8 @@ class Register(LoginParent):
                             "character and must be atleast 8 characters long",
                             55,
                         )
+                    else:
+                        break
 
                 print("\nConfirm Password:")
                 self.password_confirm = super().get_hidden_input("> ")
@@ -232,11 +194,9 @@ class Register(LoginParent):
             except PasswordDontMatchError:
                 print_message("ERROR", "passwords don't mach")
 
-        self.user = {self.username: {"password": self.password, "student id": 0}}
-
-        self.user_dict.update(self.user)
-        save_data(self.user_dict, CURRENT_PATH, "data/user_data.pickle")
-
+        insert_user(self.username, self.password)
+    
+    
     def is_valid_username(self, username):
         """
         Validating the username.
@@ -258,13 +218,5 @@ class Register(LoginParent):
 
 
 if __name__ == "__main__":
-    print_header("LOGIN / CREATE ACCOUNT", "Red River College Polytech")
-    print("Do you already have an account?")
-    user_status = input("> ")
-
-    if "yes" in user_status:
-        user = Login()
-    else:
-        user = Register()
-
-    print(f"Username: {user.get_username()}\nPassword: {user.get_password()}")
+    login = Login()
+    # login.get_student_id()

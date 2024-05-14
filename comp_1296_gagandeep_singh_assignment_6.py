@@ -20,6 +20,7 @@ def main():
     Returns:
         None
     """
+    
     while True:
         clear_terminal()  # Clearing Terminal for better UI
         while True:
@@ -53,7 +54,7 @@ def main():
                 input("\n\nPress Enter to go back to menu.")
 
             clear_terminal()
-
+        username = user.username
         while True:
             clear_terminal()
             while True:
@@ -85,7 +86,7 @@ def main():
                     clear_terminal()
 
             if choice == 1:
-                if not user.get_student_id() == 0:
+                if not get_status(username) == 'U':
                     print_header(
                         "WELCOME TO ONLINE REGISTRATION PORTAL",
                         "Red River College polytech",
@@ -96,7 +97,7 @@ def main():
                 else:
                     from students import Student
 
-                    student = Student()
+                    student = Student(username)
                     student.get_detials()
                     user.update_student_id(student.get_student_id())
 
@@ -104,14 +105,13 @@ def main():
                 clear_terminal()
 
             elif choice == 2:
-                if user.get_student_id() == 0:
+                if get_status(username) == 'U':
                     print_message("WARNING", 
                                   "you need to enter your details first")
                 else:
-                    student_id = user.get_student_id()
                     from documents import Documents
 
-                    Documents(student_id)
+                    Documents(username)
 
                 input("\n\nPress Enter to go back to menu.")
                 clear_terminal()
@@ -123,18 +123,18 @@ def main():
                     student_id = user.get_student_id()
                     from fee_payment import MakePayment
 
-                    MakePayment(student_id)
+                    MakePayment(username)
 
                 input("\n\nPress Enter to go back to menu.")
                 clear_terminal()
 
             elif choice == 4:
-                if user.get_student_id():
+                if not get_status(username) == 'U':
                     print_header(
-                        "STUDENT DETAILS", f"Student ID: {str(user.get_student_id())}"
+                        "STUDENT DETAILS", f"Student ID: {get_student_id(username)}"
                     )
-                    student_dict = read_data(CURRENT_PATH, "data/student_data.pickle")
-                    print_student_details(student_dict[user.get_student_id()])
+                    # student_dict = read_data(CURRENT_PATH, "data/student_data.pickle")
+                    print_student_details(username)
                 else:
                     print_message("ERROR", "you havn't registered yet")
 

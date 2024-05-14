@@ -11,16 +11,13 @@ import datetime
 from send_email import verify_email
 from functions import *
 
+con = sqlite3.connect('database/student.db')
+cur = con.cursor()
 
 class Student:
-    def __init__(self):
-        self.student_dict = read_data(CURRENT_PATH, "data/student_data.pickle")
-        # Assigning the student with new student ID.
-        self.student_id = random.randint(100000, 999999)
-
-        # Making sure the student_id doesn't already exists.
-        while self.student_id in self.student_dict.keys():
-            self.student_id = random.randint(100000, 999999)
+    def __init__(self, username):
+        self.username = username
+        self.student_id = get_student_id(self.username)
 
     def get_detials(self):
         """
@@ -32,21 +29,22 @@ class Student:
         print("\nPlease enter your details below:")
         print("-" * 32)
 
-        self.student_name = self.get_name()
-        self.student_dob = self.get_dob()
-        self.student_phone = self.get_phone()
-        self.student_email = self.get_email()
-        self.student_address = input("| Address: ").lower()
-        self.student_father_name = input("| Father Name: ").lower()
-        self.student_mother_name = input("| Mother Name: ").lower()
-        self.status = "Candidate"
+        self.first_name = self.get_f_name()
+        self.last_name = self.get_l_name()
+        self.dob = self.get_dob()
+        self.phone = self.get_phone()
+        self.email = self.get_email()
+        self.address = input("| Address: ").lower()
+        self.status = "C"
 
         # Prompting the student with their student ID
-        print("\nYour new student ID is:", self.student_id)
+        print("\nYour student ID is:", self.student_id)
 
-        self.save_student()
+        insert_student_details(self.username, self.first_name, self.last_name, self.dob, self.email, self.phone, self.address)
         
-    def get_name(self):
+        set_status(self.username, 'C')
+        
+    def get_f_name(self):
         """
         To get the name of the student
 
@@ -58,7 +56,27 @@ class Student:
         """
         while True:
             try:
-                student_name = input("| Name: ").lower()
+                student_name = input("| First Name: ").lower()
+                if student_name == "":
+                    raise ValueError
+                break
+            except ValueError:
+                print_message("WARNING", "you can't leave this field blank")
+        return student_name
+    
+    def get_l_name(self):
+        """
+        To get the name of the student
+
+        Returns:
+            str: name of the student
+            
+        Raises:
+            ValueError: if field left empty
+        """
+        while True:
+            try:
+                student_name = input("| Last Name: ").lower()
                 if student_name == "":
                     raise ValueError
                 break
@@ -70,9 +88,9 @@ class Student:
         # Getting and validating student's age
         while True:
             try:
-                student_dob = input("| Date Of Birth (MM/DD/YYYY): ")
+                student_dob = input("| Date Of Birth (YYYY-MM-DD): ")
                 student_dob = datetime.datetime.strptime(
-                    student_dob, "%m/%d/%Y"
+                    student_dob, "%Y-%m-%d"
                 )
 
                 self.age = self.calculate_age(student_dob)
@@ -88,7 +106,7 @@ class Student:
                 print_message("WARNING", "student must betwee 18 to 35 years of age.")
                 print()
 
-            except Exception as e:
+            except Exception:
                 print_message("ERROR", f"please enter valid date")
         return student_dob
     
@@ -109,9 +127,8 @@ class Student:
                 ):
                     raise ValueError
 
-                for student in self.student_dict.keys():
-                    if student_phone == self.student_dict[student]["phone"]:
-                        raise PhoneAlreadyExistsError
+                if value_exists('student', 'phone', 'student_phone'):
+                    raise PhoneAlreadyExistsError
 
                 break
 
@@ -139,11 +156,10 @@ class Student:
                 if not student_email.split("@")[1] in VALID_DOMAINS:
                     raise ValueError
 
-                for student in self.student_dict.keys():
-                    if student_email == self.student_dict[student]["email"]:
-                        raise EmailAlreadyExistsError
+                if value_exists('student', 'email', student_email):
+                    raise EmailAlreadyExistsError
 
-                verify_email(student_email, self.student_name)
+                verify_email(student_email, self.first_name)
 
                 break
 
@@ -216,11 +232,11 @@ if __name__ == "__main__":
     clear_terminal()
     print_header("WELCOME", "Red Rived College Polytech")
 
-    student_dict = read_data(CURRENT_PATH, "data/student_data.pickle")
+    # student_dict = read_data(CURRENT_PATH, "data/student_data.pickle")
 
-    new_student = Student()
+    new_student = Student('Gdsai4903')
     new_student.get_detials()
-    new_student.save_student()
+    # new_student.save_student()
 
     print_message("CONGRATULATIONS", "you have been successfully registerd")
 
