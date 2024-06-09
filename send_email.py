@@ -1,7 +1,7 @@
 """
 Assignment 6: Final Project
 
-This file contains the script to send the mails for otp and offer letters. 
+This file contains the script to send the mails for otp and offer letters.
 
 @author: Gagandeep Singh
 Date: December 2, 2023
@@ -9,7 +9,7 @@ Date: December 2, 2023
 import smtplib
 import random
 import datetime
-from functions import print_message
+from functions import get_details, print_message
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.image import MIMEImage
@@ -20,7 +20,7 @@ date = datetime.date.today().strftime("%B %d, %Y")
 SENDER_EMAIL = "gdsai4903@gmail.com"
 
 
-def send_offer_letter(student_id, student):
+def send_offer_letter(username):
     """
     To send the offer letter to the registered email.
 
@@ -29,7 +29,14 @@ def send_offer_letter(student_id, student):
         student (dict): the student's data dictionary
     """
     # Email configuration
-    receiver_email = student["email"]
+    details = get_details(username)
+    student_id =     details[0]
+    name =           details[1] + ' ' + details[2]
+    dob =            details[3]
+    receiver_email = details[4]
+    phone =          details[7]
+    address =        details[8]
+
     subject = "OFFER LETTER"
 
     # Offer letter in HTML
@@ -38,7 +45,7 @@ def send_offer_letter(student_id, student):
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>file_1701197481442</title>
-    <meta name="author" content="{student['name']}" />
+    <meta name="author" content="{name}" />
     <style type="text/css">
       * {{
           margin: 0;
@@ -201,7 +208,7 @@ def send_offer_letter(student_id, student):
               text-align: left;
             "
           >
-            {student['name'].title()}
+            {name.title()}
           </p>
         </td>
         <td
@@ -237,7 +244,7 @@ def send_offer_letter(student_id, student):
               text-align: left;
             "
           >
-            {student['DOB']}
+            {dob}
           </p>
         </td>
       </tr>
@@ -311,7 +318,7 @@ def send_offer_letter(student_id, student):
               text-align: left;
             "
           >
-            {student['phone']}
+            {phone}
           </p>
         </td>
       </tr>
@@ -349,7 +356,7 @@ def send_offer_letter(student_id, student):
             "
           >
             <a href="mailto:gdsai4903@gmail.com" class="s6"
-              >{student['email']}</a
+              >{receiver_email}</a
             >
           </p>
         </td>
@@ -386,7 +393,7 @@ def send_offer_letter(student_id, student):
               text-align: left;
             "
           >
-            {student['address'].title()}
+            {address.title()}
           </p>
         </td>
       </tr>
@@ -909,13 +916,13 @@ def send_offer_letter(student_id, student):
 
 """
 
-    send_mail(SENDER_EMAIL, receiver_email, subject, body)
+    send_mail(receiver_email, subject, body)
 
 
-def send_otp(student_email, student_name, otp, purpose, fee=None):
+def send_otp(username, otp, purpose, fee=None):
     """
     Send email for otp
-    
+
     Args:
       student_email (str): student email
       student_name (str): student name
@@ -924,7 +931,9 @@ def send_otp(student_email, student_name, otp, purpose, fee=None):
       fee (float): fee of otp
     """
     # Email configuration
-    receiver_email = student_email
+    details = get_details(username, ('email', 'first_name', 'last_name'))
+    receiver_email = details[0]
+    student_name = details[1] + ' ' + details[2]
 
     # OTP email in HTML
     if purpose == "register":
@@ -954,28 +963,28 @@ def send_otp(student_email, student_name, otp, purpose, fee=None):
                 </body>
             </html>"""
 
-    send_mail(SENDER_EMAIL, receiver_email, subject, body)
+    send_mail(receiver_email, subject, body)
 
 
-def verify_email(student_email, student_name, purpose="register", fee=None):
+def verify_email(username, purpose="register", fee=None):
     """
     Verify email
-    
+
     Args:
     student_email (str): student email
     student_name (str): student name
-    purpose (str): purpose 
-    fee (float): fee 
+    purpose (str): purpose
+    fee (float): fee
     """
     # creating otp
     otp = random.randint(100000, 999999)
 
     # Sending otp via email
-    send_otp(student_email, student_name, otp, purpose, fee)
-
+    send_otp(username, otp, purpose, fee)
+    email = get_details(username, ('email',))[0]
     while True:
         try:
-            recieved = int(input(f"\nEnter OTP sent to your email ({student_email}): "))
+            recieved = int(input(f"\nEnter OTP sent to your email ({email}): "))
 
             # verifying otp
             if not recieved == otp:
@@ -991,10 +1000,10 @@ def verify_email(student_email, student_name, purpose="register", fee=None):
     print()
 
 
-def send_mail(SENDER_EMAIL, receiver, subject, body):
+def send_mail(receiver, subject, body):
     """
     Send email
-    
+
     Args:
       SENDER_EMAIL (str): sender email
       receiver (str): receiver email
@@ -1038,21 +1047,5 @@ def send_mail(SENDER_EMAIL, receiver, subject, body):
 
 
 if __name__ == "__main__":
-    dob = "09-04-2001"
-    dob = datetime.datetime.strptime(dob, "%m-%d-%Y").date().strftime("%B %d, %Y")
-    # print(type(dob))
-
-    # print(type(datetime.date.today()))
-
-    student = {
-        "name": "Bavleen Kaur",
-        "DOB": dob,
-        "phone": 2048076211,
-        "email": "gdsai4903@gmail.com",
-        "address": "315 - 19 st michael",
-        "father_name": "Sukhwinder Singh",
-        "mother_name": "Sukhwinder Kaur",
-        "status": "Candidate",
-    }
     # send_otp('gdsai4903@gmail.com', 1234)
-    send_offer_letter(123456, student)
+    verify_email('gsingh456')

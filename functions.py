@@ -86,8 +86,8 @@ def print_long_message(head="HEADING", message="message", width=WIDTH):
     print(str("-" * width).center(WIDTH))
     for line in message.splitlines():
         centered_line = line.center(WIDTH)
-        print(centered_line)    
-    print()    
+        print(centered_line)
+    print()
 
 
 def read_data(path, file_name):
@@ -134,12 +134,12 @@ def print_student_details(username):
     """
     con = sqlite3.connect('database/student.db')
     cur = con.cursor()
-    
+
     query = "SELECT * FROM student WHERE username = ?"
     cur.execute(query, (username,))
     current_student = cur.fetchone()
     con.close()
-    
+
     # Displaying the details student have entered.
     print("\nConfirm your Student Details:")
     print("-" * 30)
@@ -166,84 +166,102 @@ def clear_terminal():
     For clearing the terminal for better UI
     """
     os.system("cls" if os.name == "nt" else "clear")
-    
+
 def fetch_user(user_name):
     conn = sqlite3.connect('database/student.db')
     cursor = conn.cursor()
-    
+
     res = cursor.execute(f"""SELECT * FROM user WHERE user_name = '{user_name}'""")
     return res.fetchall()[0]
 
 def get_user_names():
     conn = sqlite3.connect('database/student.db')
     cursor = conn.cursor()
-    
+
     res = cursor.execute(f"""SELECT username FROM student""")
     return res.fetchall()
 
 def get_student_id(username):
     con = sqlite3.connect('database/student.db')
     cur = con.cursor()
-    
+
     query = "SELECT student_id FROM student WHERE username = ?"
-    
+
     cur.execute(query, (username,))
     student_id = cur.fetchone()[0]
-    
+
     cur.close()
-    
+
     return student_id
 
 def get_status(username):
     con = sqlite3.connect('database/student.db')
     cur = con.cursor()
-    
+
     query = "SELECT status FROM student WHERE username = ?"
-    
+
     cur.execute(query, (username,))
     status = cur.fetchone()[0]
-    
+
     cur.close()
-    
+
     return status
 
 def set_status(username, status):
     con = sqlite3.connect('database/student.db')
     cur = con.cursor()
-    
+
     query = f"UPDATE student SET status = ? WHERE username = ?"
-    
+
     cur.execute(query, (status, username))
-    
+
     con.commit()
     con.close()
 
 def update_value(username, column, value):
     con = sqlite3.connect('database/student.db')
     cur = con.cursor()
-    
+
     query = f"UPDATE student SET {column} = ? WHERE username = ?"
-    
+
     cur.execute(query, (value, username))
-    
+
     con.commit()
     con.close()
 
+def get_details(username, columns:tuple = ()):
+    con = sqlite3.connect('database/student.db')
+    cur = con.cursor()
+
+    if not columns == ():
+        cols = ', '.join(columns)
+        query = f"SELECT {cols} FROM student WHERE username='{username}'"
+        cur.execute(query)
+    else:
+        query = f"SELECT * FROM student WHERE username='{username}'"
+        cur.execute(query)
+
+    current_student = cur.fetchone()
+
+    con.close()
+
+    return current_student
+
 def insert_user(username, password):
     query = """INSERT INTO student (username, password) VALUES (?, ?)"""
-    
+
     con = sqlite3.connect("database/student.db")
     cur = con.cursor()
-    
+
     cur.execute(query, (username, MD5(password)))
-    
+
     con.commit()
     con.close()
-    
+
 def insert_student_details(username, f_name, l_name, dob, email, phone, addr):
     con = sqlite3.connect('database/student.db')
     cur = con.cursor()
-    
+
     query = f"""UPDATE student SET (first_name
                                   , last_name
                                   , dob
@@ -252,7 +270,7 @@ def insert_student_details(username, f_name, l_name, dob, email, phone, addr):
                                   , addr)
                     = (?,?,?,?,?,?)
                     WHERE username=?"""
-                    
+
     cur.execute(query, (f_name
                       , l_name
                       , dob
@@ -265,7 +283,7 @@ def insert_student_details(username, f_name, l_name, dob, email, phone, addr):
 def value_exists(table, column, value):
         """
         Check if a value exists in a specified column of a table.
-        
+
         Parameters:
         table (str): The name of the table.
         column (str): The name of the column.
@@ -280,11 +298,11 @@ def value_exists(table, column, value):
         query = f"SELECT 1 FROM {table} WHERE {column} = ?"
         cur.execute(query, (value,))
         result = cur.fetchone()
-        
+
         con.close()
-        
-        return result is not None 
-    
+
+        return result is not None
+
 def MD5(password):
     return hashlib.md5(password.encode()).hexdigest()
 
@@ -335,6 +353,5 @@ class InvalidDOBError(Exception):
 
 
 if __name__ == "__main__":
-    # print_header("hello", "world")
-    # print(fetch_user('gdsai4903@gmail.com'))
-    print(get_status('gsingh123'))
+    username = 'gsingh456'
+    print(get_details(username, ('email',))[0])

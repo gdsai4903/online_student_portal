@@ -35,10 +35,7 @@ class MakePayment:
 
             self.fee = self.calculate_fee(taken_courses)
 
-            self.make_payment(student_id, current_student)
-
-        # Saving the data for future reference
-        save_data(student_dict, CURRENT_PATH, "data/student_data.pickle")
+            self.make_payment(username)
 
         # Printing the Thankyou message
         print_thankyou()
@@ -65,11 +62,11 @@ class MakePayment:
             print("-" * 35)
 
             course_ids = []
-            for row in self.fetch_courses():
-                course_ids.append(row[0])
+            for course in self.fetch_courses():
+                course_ids.append(course[0])
                 print(
-                    f" |{row[0]}.  {row[1]}:"
-                    f"{('$' + str(row[2])).rjust(25-len(row[1]))}"
+                    f" |{course[0]}.  {course[1]}:"
+                    f"{('$' + str(course[2])).rjust(25-len(course[1]))}"
                 )
 
             while True:
@@ -79,11 +76,10 @@ class MakePayment:
                         " separated by commas','."
                     )
                     response = input("> ")
-                    courses_chosen = []
-                    for x in response.split(","):
-                        n = int(x.strip())
-                        if n in course_ids:
-                            courses_chosen.append(n)
+                    for choices in response.split(","):
+                        c_id = int(choices.strip())
+                        if c_id in course_ids:
+                            taken_courses.append(c_id)
                         else:
                             raise ValueError
 
@@ -91,23 +87,13 @@ class MakePayment:
                 except ValueError:
                     print_message("CAUTION", 'invalid input. sample input: "1001, 1002, 1003"')
 
-            if len(courses_chosen) >= 3:
-                con = sqlite3.connect('database/student.db')
-                cur = con.cursor()
-                
-                placeholder = ','.join('?' for _ in courses_chosen)
-                query = f"SELECT course_name FROM course WHERE course_id IN ({placeholder})"
-                
-                cur.execute(query, courses_chosen)
-                course_name = cur.fetchall()
-                
-                con.close()
-                
+            if len(taken_courses) >= 3:
+                course_names = self.fetch_courses(taken_courses)
+
                 # printing the courses selected.
                 print("\nYou have selected the following courses:")
-                for n, row in enumerate(course_name):
-                    print(f" |{n+1}. {row[0]}")
-                    taken_courses.append(row[0])
+                for course in course_names:
+                    print(f" |{course[0]} - {course[1]}")
             else:
                 print_message("CAUTION", "you have to take atleast 3 courses.")
                 print()
@@ -117,34 +103,6 @@ class MakePayment:
             input("\nPress Enter to continue? ")
             break
         return taken_courses
-
-    def fetch_courses(self):
-        con = sqlite3.connect('database/student.db')
-        cur = con.cursor()
-        
-        query = "SELECT course_id, course_name, course_fee FROM course WHERE active=1"
-        
-        cur.execute(query)
-        
-        courses = cur.fetchall()
-        
-        con.close()
-        
-        return courses
-    
-    def fetch_amenities(self):
-        con = sqlite3.connect('database/student.db')
-        cur = con.cursor()
-        
-        query = "SELECT amenity_name, amenity_fee FROM amenity WHERE active=1"
-        
-        cur.execute(query)
-        
-        amenities = cur.fetchall()
-        
-        con.close()
-        
-        return amenities
 
     def calculate_fee(self, taken_courses):
         """
@@ -163,6 +121,9 @@ class MakePayment:
         # Creating float variable to store total fee.
         total = 0.0
 
+        courses = self.fetch_courses(taken_courses)
+        amanities = self.fetch_amanities()
+
         # Printing the receipt header.
         print("\n" + SPACING, "-" * 33)
         print(SPACING, "RRC POLYTECH".center(33))
@@ -174,28 +135,28 @@ class MakePayment:
         print(SPACING, "-" * 33)
 
         # Printing fee for chosen courses
-        for subject in COURSES.keys():
-            if subject in taken_courses:
+        for course in courses:
+            if course[0] in taken_courses:
                 print(
                     SPACING,
-                    subject,
-                    str("%.2f" % COURSES[subject][0]).rjust(7 + COURSES[subject][1]),
+                    course[1],
+                    str("%.2f" % course[2]).rjust(32- len(course[1])),
                     "+",
                 )
-                total += COURSES[subject][0]
+                total += course[2]
         print()
 
         # Printing fee for Other expenses
-        for expence in OTHER_CHARGES.keys():
+        for expence in amanities:
             print(
                 SPACING,
-                expence,
-                str("%.2f" % OTHER_CHARGES[expence][0]).rjust(
-                    32 - OTHER_CHARGES[expence][1]
+                expence[0],
+                str("%.2f" % expence[1]).rjust(
+                    32 - len(expence[0])
                 ),
                 "+",
             )
-            total += OTHER_CHARGES[expence][0]
+            total += expence[1]
 
         print(SPACING, "-" * 33)
         print(SPACING, "Total", str("%.2f" % total).rjust(27))
@@ -239,7 +200,7 @@ class MakePayment:
 
         return grand_total
 
-    def make_payment(self, student_id, current_student):
+    def make_payment(self, username):
         """
         To make a payment, and send the offer letter to the registered email.
 
@@ -251,12 +212,14 @@ class MakePayment:
         while True:
             print("\nEnter your card details below:")
             card_num = input("Credit/Debit card number: ")
+
             if not len(card_num) == 16:
                 print_message("ERROR", "Please enter a valid card number")
                 continue
+
             while True:
                 try:
-                    valid_thru = input("Valid thru: ")
+                    valid_thru = input("Valid thru MM/YY: ")
                     valid_thru = datetime.datetime.strptime(valid_thru, "%m/%y")
                     break
 
@@ -279,10 +242,11 @@ class MakePayment:
         # Asking the student for payment method
         payment_method = input("\nType 'pay' and press Enter to pay: ").lower().strip()
 
+        # details = get_details(username, ('student_id', 'email', 'first_name'))
+
         if "pay" in payment_method:
             verify_email(
-                current_student["email"],
-                current_student["name"],
+                username,
                 purpose="payment",
                 fee=self.fee,
             )
@@ -291,14 +255,14 @@ class MakePayment:
             print_message("CONGRATULATIONS", "you have paid your fee successfully")
 
             # Changing the student status to approved.
-            current_student["status"] = "Enrolled"
+            set_status(username, 'E')
 
             # Displaying the change of status
             print("\nYour status has now been changed to 'Enrolled'!")
-            print("\nStudent status: ", current_student["status"])
+            print("\nStudent status: ", get_status(username))
 
             try:
-                send_offer_letter(student_id, current_student)
+                send_offer_letter(username)
             except Exception as e:
                 print(e)
 
@@ -309,8 +273,41 @@ class MakePayment:
 
             # Displaying the change of status
             print("\nYour status has not been changed to 'Enrolled'!")
-            print("\nStudent status: ", current_student["status"])
+            print("\nStudent status: ", get_status(username))
 
+
+    def fetch_courses(self, taken_courses = None):
+        con = sqlite3.connect('database/student.db')
+        cur = con.cursor()
+
+        if taken_courses:
+            placeholder = ','.join('?' for _ in taken_courses)
+            query = f"SELECT course_id, course_name, course_fee FROM course WHERE course_id IN ({placeholder})"
+            cur.execute(query, taken_courses)
+
+        else:
+            query = "SELECT course_id, course_name, course_fee FROM course WHERE active=1"
+            cur.execute(query)
+
+        courses = cur.fetchall()
+
+        con.close()
+
+        return courses
+
+    def fetch_amanities(self):
+        con = sqlite3.connect('database/student.db')
+        cur = con.cursor()
+
+        query = "SELECT amenity_name, amenity_fee FROM amenity WHERE active=1"
+
+        cur.execute(query)
+
+        amanities = cur.fetchall()
+
+        con.close()
+
+        return amanities
 
 if __name__ == "__main__":
-    MakePayment('gsingh123')
+    MakePayment('gsingh456')

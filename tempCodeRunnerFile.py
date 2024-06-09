@@ -1,2 +1,0 @@
-
-    print(cur.fetchall())

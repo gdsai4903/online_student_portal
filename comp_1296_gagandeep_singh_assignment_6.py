@@ -1,7 +1,7 @@
 """
 Assignment 6: Final Project
 
-This file will combine all the sections into one single section. 
+This file will combine all the sections into one single section.
 
 @author: Gagandeep Singh
 Date: December 2, 2023
@@ -16,16 +16,16 @@ def main():
 
     Arguments:
         None
-    
+
     Returns:
         None
     """
-    
+
     while True:
         clear_terminal()  # Clearing Terminal for better UI
         while True:
             # Printing heading uing a custom function defined in functions.py
-            print_header("WELCOME TO RED RIVER COLLEGE POLYTECH", 
+            print_header("WELCOME TO RED RIVER COLLEGE POLYTECH",
                             "Login / Register")
 
             # Asking if student already has an account
@@ -47,9 +47,9 @@ def main():
                 break
 
             else:
-                print_header("WELCOME TO RED RIVER COLLEGE POLYTECH", 
+                print_header("WELCOME TO RED RIVER COLLEGE POLYTECH",
                                 "Login / Register")
-                
+
                 print_message("ERROR", "invalid input")
                 input("\n\nPress Enter to go back to menu.")
 
@@ -91,8 +91,8 @@ def main():
                         "WELCOME TO ONLINE REGISTRATION PORTAL",
                         "Red River College polytech",
                     )
-                    
-                    print_message("CAUTION", 
+
+                    print_message("CAUTION",
                                   "you have already entered your details")
                 else:
                     from students import Student
@@ -106,7 +106,7 @@ def main():
 
             elif choice == 2:
                 if get_status(username) == 'U':
-                    print_message("WARNING", 
+                    print_message("WARNING",
                                   "you need to enter your details first")
                 else:
                     from documents import Documents
@@ -117,12 +117,10 @@ def main():
                 clear_terminal()
 
             elif choice == 3:
-                if user.get_student_id() == 0:
+                if get_status(username) == 'C':
                     print_message("WARNING", "you need to enter your details first")
                 else:
-                    student_id = user.get_student_id()
                     from fee_payment import MakePayment
-
                     MakePayment(username)
 
                 input("\n\nPress Enter to go back to menu.")
@@ -142,7 +140,7 @@ def main():
 
             elif choice == 5:
                 print("\n" * 5)
-                print_message("LOGGED OUT")
+                print_message("LOGGED OUT", "Thank You")
                 print("\n" * 5)
                 input("\n\nPress Enter to go back to menu.")
                 break
