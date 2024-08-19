@@ -21,7 +21,7 @@ This is a terminal-based online student portal project written in Python. The po
 - **Pay Fee**: Students can choose their courses and pay the associated fees. ![Pay Fee](./images/Screenshot%202024-06-09%20at%2012.20.09 AM.png)
 - **View Details**: Students can view all their entered details. ![View Details](./images/Screenshot%202024-06-09%20at%2012.19.58 AM.png)
 - **Status Tracking**: The system tracks the student's progress through different statuses: Unknown (U), Candidate (C), Approved (A), Enrolled (E).
-- **Email Notification**: Once the fee is paid, a letter of offer is sent to the student's registered email.
+- **Email Notification**: Once the fee is paid, a letter of offer is sent to the student's registered email. ![Email](./images/Screenshot%2024-08-19%at%17.53.14.png)
 - **Logout and Exit**: Students can log out or exit the application.
 
 ## Installation
