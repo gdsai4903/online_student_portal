@@ -20,7 +20,7 @@ def create_student_table():
 
     # Create the table to hold the student data
     student_table_query = """CREATE TABLE IF NOT EXISTS student (\
-student_id    INTEGER PRIMARY KEY AUTOINCREMENT
+                      student_id    INTEGER PRIMARY KEY AUTOINCREMENT
                     , first_name    VARCHAR(35)     NOT NULL
                     , last_name     VARCHAR(35)
                     , dob           DATE
@@ -35,10 +35,10 @@ student_id    INTEGER PRIMARY KEY AUTOINCREMENT
     # truncate_student_table = "TRUNCATE TABLE student;"
 
     populate_student_table = f"""INSERT INTO student
-           (first_name , last_name , dob , email, username, password, phone, addr)
-    VALUES ('Bavleen', 'Kaur', '2003-09-04', "abc@def.com", 'bkaur123', ?, '123-456-7890', '123 That Rd')
-         , ('Gagandeep', 'Singh', '2001-09-24', "gdsai4903@gmail.com", 'gsingh456', ?, '098-765-4321', '124 This Rd')
-         , ('Simranpreet', 'Singh', '2003-12-24', "ghi@def.com", 'ssingh789', ?, '098-123-4321', '999 Demo Rd');"""
+           (first_name , last_name , dob , email, username, password, phone, addr, status)
+    VALUES ('Bavleen', 'Kaur', '2003-09-04', "abc@def.com", 'bkaur123', ?, '123-456-7890', '123 That Rd', 'C')
+         , ('Gagandeep', 'Singh', '2001-09-24', "gdsai4903@gmail.com", 'gsingh456', ?, '098-765-4321', '124 This Rd', 'C')
+         , ('Simranpreet', 'Singh', '2003-12-24', "ghi@def.com", 'ssingh789', ?, '098-123-4321', '999 Demo Rd', 'C');"""
 
     cur.execute(db_drop_query)
     cur.execute(student_table_query)
@@ -59,6 +59,7 @@ def create_document_table():
                                 document_id INTEGER PRIMARY KEY AUTOINCREMENT
                               , student_id  INTEGER
                               , doc_name    VARCHAR(100)
+                              , uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                               , active      BIT         NOT NULL DEFAULT 1
                               , CONSTRAINT  stu__FK     FOREIGN KEY (student_id) REFERENCES student)"""
 
@@ -176,30 +177,6 @@ def set_initial_student_id(start_id):
     con.commit()
     con.close()
 
-def insert_student(f_name, l_name, dob, email, username, password, phone, addr):
-    con = sqlite3.connect("database/student.db")
-    cur = con.cursor()
-
-    sample_data_query = f"""INSERT INTO student (first_name
-                                                , last_name
-                                                , dob
-                                                , email
-                                                , username
-                                                , password
-                                                , phone
-                                                , addr)
-                                        VALUES(?,?,DATE(?),?,?,?,?,?)"""
-    cur.execute(sample_data_query, (f_name
-                                , l_name
-                                , dob
-                                , email
-                                , username
-                                , MD5(password)
-                                , phone
-                                , addr))
-    con.commit()
-    con.close()
-
 
 if __name__ == "__main__":
     create_database()
@@ -209,4 +186,4 @@ if __name__ == "__main__":
     create_amenity_table()
     create_tax_table()
 
-    set_status('gsingh456', 'A')
+    # set_status('gsingh456', 'A')
