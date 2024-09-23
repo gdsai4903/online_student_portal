@@ -50,7 +50,7 @@ class MakePayment:
         Returns:
             list: list of chosen courses
         """
-        taken_courses = []
+        self.taken_courses = []
 
         while True:
             # Asking student to select what course to take
@@ -79,7 +79,7 @@ class MakePayment:
                     for choices in response.split(","):
                         c_id = int(choices.strip())
                         if c_id in course_ids:
-                            taken_courses.append(c_id)
+                            self.taken_courses.append(c_id)
                         else:
                             raise ValueError
 
@@ -87,8 +87,8 @@ class MakePayment:
                 except ValueError:
                     print_message("CAUTION", 'invalid input. sample input: "1001, 1002, 1003"')
 
-            if len(taken_courses) >= 3:
-                course_names = self.fetch_courses(taken_courses)
+            if len(self.taken_courses) >= 3:
+                course_names = self.fetch_courses(self.taken_courses)
 
                 # printing the courses selected.
                 print("\nYou have selected the following courses:")
@@ -102,7 +102,7 @@ class MakePayment:
 
             input("\nPress Enter to continue? ")
             break
-        return taken_courses
+        return self.taken_courses
 
     def calculate_fee(self, taken_courses):
         """
@@ -164,10 +164,12 @@ class MakePayment:
 
         # Calculating the tax on the fee
         # GST
+        GST = get_tax('GST')
         gst = total * (GST / 100)
         print(SPACING, f"GST({GST}%):", str("%.2f" % gst).rjust(24), "+")
 
         # PST
+        PST = get_tax('PST')
         pst = total * (PST / 100)
         print(SPACING, f"PST({PST}%):", str("%.2f" % pst).rjust(24), "+")
 
@@ -254,19 +256,26 @@ class MakePayment:
             # Printing the success message.
             print_message("CONGRATULATIONS", "you have paid your fee successfully")
 
-            # Changing the student status to approved.
-            set_status(username, 'E')
-
-            # Displaying the change of status
-            print("\nYour status has now been changed to 'Enrolled'!")
-            print("\nStudent status: ", get_status(username))
-
             try:
-                send_offer_letter(username)
-            except Exception as e:
-                print(e)
+                # inserting course records
+                register_courses(username, self.taken_courses)
+                # Changing the student status to approved.
+                set_status(username, 'E')
+                try:
+                    send_offer_letter(username)
+                    print("\n" + "*an email has been sent to your registered email*".center(WIDTH))
+                except Exception as e:
+                    print(e)
 
-            print("\n" + "*an email has been sent to your registered email*".center(WIDTH))
+            except Exception as e:
+                print_message("Warning!", f"There was an error registering for courses.{e} Your status was not changed. ")
+
+                # Displaying the change of status
+                print("\nYour status has now been changed to 'Enrolled'!")
+                print("\nStudent status: ", get_status(username))
+
+            
+
 
         else:
             print_message("ERROR", "fee could not be paid")
@@ -311,3 +320,4 @@ class MakePayment:
 
 if __name__ == "__main__":
     MakePayment('gsingh456')
+    # get_details('gsingh123', ('email', 'first_name'))

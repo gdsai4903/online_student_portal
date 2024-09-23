@@ -127,7 +127,7 @@ class Student:
                 ):
                     raise ValueError
 
-                if value_exists('student', 'phone', 'student_phone'):
+                if value_exists('people', 'phone', 'student_phone'):
                     raise PhoneAlreadyExistsError
 
                 break
@@ -156,10 +156,10 @@ class Student:
                 if not student_email.split("@")[1] in VALID_DOMAINS:
                     raise ValueError
 
-                if value_exists('student', 'email', student_email):
+                if value_exists('people', 'email', student_email):
                     raise EmailAlreadyExistsError
 
-                verify_email(student_email, self.first_name)
+                # verify_email(student_email, self.first_name)
 
                 break
 

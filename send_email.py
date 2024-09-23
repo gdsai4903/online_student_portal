@@ -941,7 +941,7 @@ def send_otp(username, otp, purpose, fee=None):
         body = f"""<html>
                 <body>
                     <p><img src="cid:image1"></p>
-                    <p>Dear {student_name.title()},</p>
+                    <p>Dear {student_name},</p>
                     <p>Thank you for registering with Red River College Polytechnic.</p>
                     <p>Your verification code is: {otp}.</p>
                     <p>Do NOT share this with anyone.</p>
@@ -954,7 +954,7 @@ def send_otp(username, otp, purpose, fee=None):
         body = f"""<html>
                 <body>
                     <p><img src="cid:image1"></p>
-                    <p>Dear {student_name.title()},</p>
+                    <p>Dear {student_name},</p>
                     <p>This is an email to verify the transaction on your account of ${"%.2f"%fee}.</p>
                     <p></p>
                     <p>Your verification code is: {otp}.</p>
@@ -1036,11 +1036,11 @@ def send_mail(receiver, subject, body):
     server.starttls()
 
     # Login to your Gmail account using the app-specific password
-    app_password = "axjt roow hxtt enkr"
+    app_password = "akwc joqa mjqb pmpx"
     server.login(SENDER_EMAIL, app_password)
 
     # Send the email
-    server.sendmail(SENDER_EMAIL, receiver, message.as_string())
+    server.sendmail(SENDER_EMAIL, receiver, str(message))
 
     # Quit the SMTP server
     server.quit()
@@ -1048,4 +1048,6 @@ def send_mail(receiver, subject, body):
 
 if __name__ == "__main__":
     # send_otp('gdsai4903@gmail.com', 1234)
-    verify_email('gsingh456')
+    # verify_email('gsingh456')
+    print(get_details("gsingh123", ('email', 'first_name', 'last_name'))[0])
+

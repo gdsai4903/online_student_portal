@@ -22,7 +22,7 @@ def main():
     """
 
     while True:
-        clear_terminal()  # Clearing Terminal for better UI
+        clear_terminal()  # Clear Terminal for better UI
         while True:
             # Printing heading uing a custom function defined in functions.py
             print_header("WELCOME TO RED RIVER COLLEGE POLYTECH",
@@ -41,6 +41,7 @@ def main():
             elif "no" in responce:  # Register then login
                 from login_page import Register, Login
                 Register()
+
                 clear_terminal()
 
                 user = Login()
@@ -99,7 +100,6 @@ def main():
 
                     student = Student(username)
                     student.get_detials()
-                    user.update_student_id(student.get_student_id())
 
                 input("\n\nPress Enter to go back to menu.")
                 clear_terminal()

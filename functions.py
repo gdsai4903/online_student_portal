@@ -22,8 +22,6 @@ VALID_DOMAINS = ["gmail.com", "rrc.ca", "academic.rrc.ca", "outlook.com",
 
 
 # Defining the constants
-GST = 7  # in percentage (%)
-PST = 5  # in percentage (%)
 DISCOUNT = 5  # in percentage (%)
 
 # Setting the position of the reciept
@@ -135,7 +133,7 @@ def print_student_details(username):
     con = sqlite3.connect('database/student.db')
     cur = con.cursor()
 
-    query = "SELECT * FROM student WHERE username = ?"
+    query = "SELECT * FROM people WHERE username = ?"
     cur.execute(query, (username,))
     current_student = cur.fetchone()
     con.close()
@@ -148,7 +146,7 @@ def print_student_details(username):
     print("| Email:        ", current_student[4])
     print("| Phone:        ", current_student[7])
     print("| Address:      ", current_student[8].title())
-    print(f"\n| Student Status: {current_student[9]}")
+    print(f"\n| Student Status: {get_status(username)}")
 
 
 def print_thankyou():
@@ -166,6 +164,18 @@ def clear_terminal():
     For clearing the terminal for better UI
     """
     os.system("cls" if os.name == "nt" else "clear")
+
+def register_courses(username, courses):
+    con = sqlite3.connect('database/student.db')
+    cur = con.cursor()
+
+    s_id = get_student_id(username)
+    for course in courses:
+        query = "INSERT INTO student_course (student_id, course_id) VALUES (?,?)"
+        cur.execute(query, (s_id, course))
+
+    con.commit()
+    con.close()
 
 def fetch_user(user_name):
     conn = sqlite3.connect('database/student.db')
@@ -185,22 +195,36 @@ def get_student_id(username):
     con = sqlite3.connect('database/student.db')
     cur = con.cursor()
 
-    query = "SELECT student_id FROM student WHERE username = ?"
+    p_id = get_p_id(username)
 
-    cur.execute(query, (username,))
+    query = "SELECT student_id FROM student WHERE p_id = ?"
+
+    cur.execute(query, (p_id,))
     student_id = cur.fetchone()[0]
 
     cur.close()
 
     return student_id
 
+def get_p_id(username):
+    query = """SELECT p_id FROM people WHERE username = ?"""
+
+    con = sqlite3.connect('database/student.db')
+    cur = con.cursor()
+
+    p_id = cur.execute(query, (username, )).fetchone()[0]
+
+    con.close()
+
+    return p_id
+
 def get_status(username):
     con = sqlite3.connect('database/student.db')
     cur = con.cursor()
 
-    query = "SELECT status FROM student WHERE username = ?"
+    query = """SELECT status FROM student WHERE p_id = ?"""
 
-    cur.execute(query, (username,))
+    cur.execute(query, (get_p_id(username),))
     status = cur.fetchone()[0]
 
     cur.close()
@@ -211,9 +235,10 @@ def set_status(username, status):
     con = sqlite3.connect('database/student.db')
     cur = con.cursor()
 
-    query = f"UPDATE student SET status = ? WHERE username = ?"
+    p_id = get_p_id(username)
+    query = f"UPDATE student SET status = ? WHERE p_id = ?"
 
-    cur.execute(query, (status, username))
+    cur.execute(query, (status, p_id))
 
     con.commit()
     con.close()
@@ -235,34 +260,34 @@ def get_details(username, columns:tuple = ()):
 
     if not columns == ():
         cols = ', '.join(columns)
-        query = f"SELECT {cols} FROM student WHERE username='{username}'"
-        cur.execute(query)
+        query = f"SELECT {cols} FROM people WHERE username='{username}'"
     else:
-        query = f"SELECT * FROM student WHERE username='{username}'"
-        cur.execute(query)
+        query = f"SELECT * FROM people WHERE username='{username}'"
 
-    current_student = cur.fetchone()
+    current_student = cur.execute(query).fetchone()
 
     con.close()
 
     return current_student
 
 def insert_user(username, password):
-    query = """INSERT INTO student (username, password) VALUES (?, ?)"""
+    query = """INSERT INTO people (username, password) VALUES (?, ?)"""
 
     con = sqlite3.connect("database/student.db")
     cur = con.cursor()
 
     cur.execute(query, (username, MD5(password)))
-
     con.commit()
+
+    register_student(username)
+
     con.close()
 
 def insert_student_details(username, f_name, l_name, dob, email, phone, addr):
     con = sqlite3.connect('database/student.db')
     cur = con.cursor()
 
-    query = f"""UPDATE student SET (first_name
+    query = f"""UPDATE people SET (first_name
                                   , last_name
                                   , dob
                                   , email
@@ -278,7 +303,24 @@ def insert_student_details(username, f_name, l_name, dob, email, phone, addr):
                       , phone
                       , addr
                       , username))
+    
+
     con.commit()
+    con.close()
+
+def register_student(username): 
+    p_id_query = '''select p_id from people where username = ?'''
+    query = '''INSERT INTO student (p_id) VALUES (?)'''
+
+    con = sqlite3.connect('database/student.db')
+    cur = con.cursor()
+
+    p_id = cur.execute(p_id_query, (username, )).fetchone()[0]
+    cur.execute(query, (p_id, ))
+
+    con.commit()
+    con.close()
+
 
 def value_exists(table, column, value):
         """
@@ -302,6 +344,18 @@ def value_exists(table, column, value):
         con.close()
 
         return result is not None
+
+def get_tax(tax_type):
+    con = sqlite3.connect('database/student.db')
+    cur = con.cursor()
+
+    query = '''SELECT tax_perc from tax WHERE tax_end IS NULL and tax_type = ?'''
+
+    res = cur.execute(query, (tax_type,)).fetchone()[0]
+
+    con.commit()
+    con.close()
+    return res
 
 def MD5(password):
     return hashlib.md5(password.encode()).hexdigest()
@@ -353,5 +407,7 @@ class InvalidDOBError(Exception):
 
 
 if __name__ == "__main__":
-    username = 'gsingh456'
-    print(get_details(username, ('email',))[0])
+    # username = 'gsingh456'
+    # register_student(username)
+
+    register_courses('gsingh456', [1001, 1002, 1004])

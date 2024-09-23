@@ -15,27 +15,6 @@ con = sqlite3.connect('database/student.db')
 cur = con.cursor()
 
 class LoginParent:
-    """
-    This is the parent class for the login and register scripts.
-    """
-    def get_username(self):
-        """
-        This function is used to get the username from the user.
-
-        Returns:
-            str: The username from the user.
-        """
-        return self.username
-
-    def get_password(self):
-        """
-        This function is used to get the password from the user.
-
-        Returns:
-            str: The password from the user.
-        """
-        return self.password
-
     def is_valid_password(self, password):
         """
         This function is used to check if the password is valid.
@@ -127,8 +106,8 @@ class Login(LoginParent):
             self.password = MD5(super().get_hidden_input("> "))
 
             try:
-                self.user = cur.execute("SELECT * FROM student WHERE username = ?", (self.username,)).fetchone()
-                if (not self.user) or (not self.user[6] == self.password):
+                self.user = cur.execute("SELECT password FROM people WHERE username = ?", (self.username,)).fetchone()
+                if (not self.user) or (not self.user[0] == self.password):
                     raise WrongLoginCredentials
                 break
 
@@ -146,7 +125,7 @@ class Register(LoginParent):
             try:
                 print("\nUsername:")
                 self.username = input("> ").strip()
-                if value_exists('student', 'username', self.username):
+                if value_exists('people', 'username', self.username):
                     raise UserAlreadyExistsError
 
                 if not self.is_valid_username(self.username):
@@ -163,12 +142,10 @@ class Register(LoginParent):
                     "must not contain any special character except underscore '_'",
                     55,
                 )
-            
-            return get_student_id(self.username, self.password)
 
         while True:
             try:
-                while True:
+                while True: # loop for valid password
                     print("\nCreate Password:")
                     self.password = super().get_hidden_input("> ")
 
@@ -184,9 +161,9 @@ class Register(LoginParent):
                         break
 
                 print("\nConfirm Password:")
-                self.password_confirm = super().get_hidden_input("> ")
+                password_confirm = super().get_hidden_input("> ")
 
-                if not self.password == self.password_confirm:
+                if not self.password == password_confirm:
                     raise PasswordDontMatchError
 
                 break
@@ -219,4 +196,5 @@ class Register(LoginParent):
 
 if __name__ == "__main__":
     login = Login()
+    print(login)
     # login.get_student_id()

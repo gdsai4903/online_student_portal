@@ -15,9 +15,11 @@ from PyQt5.QtWidgets import QApplication, QFileDialog, QWidget
 class Documents:
     def __init__(self, username):
         print_header("UPLOAD DOCUMENTS", "Red River College Polytech")
+
         con = sqlite3.connect('database/student.db')
         cur = con.cursor()
-        student_id = cur.execute("SELECT student_id FROM student WHERE username =?", (username,)).fetchone()[0]
+        student_id = get_student_id(username)
+        # student_id = cur.execute("SELECT student_id FROM student WHERE username =?", (username,)).fetchone()[0]
         status = get_status(username)
         print_student_details(username)
 
