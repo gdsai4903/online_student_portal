@@ -162,4 +162,5 @@ cython_debug/
 #.idea/
 
 
+test.py
 key.txt
