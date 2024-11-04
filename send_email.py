@@ -1036,7 +1036,7 @@ def send_mail(receiver, subject, body):
     server.starttls()
 
     # Login to your Gmail account using the app-specific password
-    app_password = "akwc joqa mjqb pmpx"
+    app_password = "ak..."
     server.login(SENDER_EMAIL, app_password)
 
     # Send the email
