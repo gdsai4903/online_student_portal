@@ -6,13 +6,15 @@ This file contains the script to send the mails for otp and offer letters.
 @author: Gagandeep Singh
 Date: December 2, 2023
 """
-import smtplib
-import random
+
 import datetime
-from functions import get_details, print_message
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+import random
+import smtplib
 from email.mime.image import MIMEImage
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
+from utils import get_details, print_message
 
 RRC_image = "images/RRC-Polytech-Horizontal.png"
 date = datetime.date.today().strftime("%B %d, %Y")
@@ -30,12 +32,12 @@ def send_offer_letter(username):
     """
     # Email configuration
     details = get_details(username)
-    student_id =     details[0]
-    name =           details[1] + ' ' + details[2]
-    dob =            details[3]
+    student_id = details[0]
+    name = details[1] + " " + details[2]
+    dob = details[3]
     receiver_email = details[4]
-    phone =          details[7]
-    address =        details[8]
+    phone = details[7]
+    address = details[8]
 
     subject = "OFFER LETTER"
 
@@ -931,9 +933,9 @@ def send_otp(username, otp, purpose, fee=None):
       fee (float): fee of otp
     """
     # Email configuration
-    details = get_details(username, ('email', 'first_name', 'last_name'))
+    details = get_details(username, ("email", "first_name", "last_name"))
     receiver_email = details[0]
-    student_name = details[1] + ' ' + details[2]
+    student_name = details[1] + " " + details[2]
 
     # OTP email in HTML
     if purpose == "register":
@@ -981,7 +983,7 @@ def verify_email(username, purpose="register", fee=None):
 
     # Sending otp via email
     send_otp(username, otp, purpose, fee)
-    email = get_details(username, ('email',))[0]
+    email = get_details(username, ("email",))[0]
     while True:
         try:
             recieved = int(input(f"\nEnter OTP sent to your email ({email}): "))
@@ -1036,7 +1038,7 @@ def send_mail(receiver, subject, body):
     server.starttls()
 
     # Login to your Gmail account using the app-specific password
-    with open('./key.txt', 'r') as f:
+    with open("./key.txt", "r") as f:
         app_password = f.readline()
 
     server.login(SENDER_EMAIL, app_password)
@@ -1051,5 +1053,4 @@ def send_mail(receiver, subject, body):
 if __name__ == "__main__":
     # send_otp('gdsai4903@gmail.com', 1234)
     # verify_email('gsingh456')
-    print(get_details("gsingh123", ('email', 'first_name', 'last_name'))[0])
-
+    print(get_details("gsingh123", ("email", "first_name", "last_name"))[0])

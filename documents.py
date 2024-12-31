@@ -1,38 +1,29 @@
-"""
-Assignment 6: Final Project
-
-This file contains the script for the upload documents section. 
-
-@author: Gagandeep Singh
-Date: December 2, 2023
-"""
+import os
 import platform
+import sqlite3
 import time
-from functions import *
-from PyQt5.QtWidgets import QApplication, QFileDialog, QWidget
+
+import utils
 
 
 class Documents:
     def __init__(self, username):
-        print_header("UPLOAD DOCUMENTS", "Red River College Polytech")
+        utils.print_header("UPLOAD DOCUMENTS", "Red River College Polytech")
 
-        con = sqlite3.connect('database/student.db')
-        cur = con.cursor()
-        student_id = get_student_id(username)
-        # student_id = cur.execute("SELECT student_id FROM student WHERE username =?", (username,)).fetchone()[0]
-        status = get_status(username)
-        print_student_details(username)
+        student_id = utils.get_student_id(username)
+        status = utils.get_status(username)
+        utils.print_student_details(username)
 
         # Checking if the student is already approved or enrolled.
         if status == "A":
-            print("\n" + "ATTENTION".center(WIDTH))
-            print(("-" * 40).center(WIDTH))
-            print("*you have already" " uploaded your documents*".center(WIDTH))
+            print("\n" + "ATTENTION".center(utils.WIDTH))
+            print(("-" * 40).center(utils.WIDTH))
+            print("*you have already" " uploaded your documents*".center(utils.WIDTH))
 
         elif status == "E":
-            print("\n" + "ATTENTION".center(WIDTH))
-            print(("-" * 40).center(WIDTH))
-            print("*you are already enrolled, no need to submit*".center(WIDTH))
+            print("\n" + "ATTENTION".center(utils.WIDTH))
+            print(("-" * 40).center(utils.WIDTH))
+            print("*you are already enrolled, no need to submit*".center(utils.WIDTH))
 
         elif status == "C":
             # Asking the user to upload the documents.
@@ -54,28 +45,28 @@ class Documents:
                     if "yes" in choice:
                         self.save_docs(doc, student_id, username)
 
-                        print_message(
+                        utils.print_message(
                             "CONGRATULATIONS",
                             "you have successfully" " uploaded your documents",
                         )
 
                         # Changing the student status to approved.
-                        set_status(username, 'A')
+                        utils.set_status(username, "A")
 
                         # Displaying the change of status
                         print("\nYour status has now been changed to 'Approved'!")
-                        print("\nStudent status: ", get_status(username))
+                        print("\nStudent status: ", utils.get_status(username))
                         break
 
                     elif "no" in choice:
                         continue
 
                     elif "exit" in choice:
-                        print_message("ERROR", "couldn't upload documents")
+                        utils.print_message("ERROR", "couldn't upload documents")
 
                         # Displaying the change of status
                         print("\nYour status has not been changed!")
-                        print("\nStudent status: ", get_status(username))
+                        print("\nStudent status: ", utils.get_status(username))
                         break
 
     def get_docs(self):
@@ -83,9 +74,11 @@ class Documents:
         This function is to open the file explorer to select the documents that
         they wanna use.
         """
+
         if platform.system() == "Windows":
             import tkinter as tk
             from tkinter import filedialog
+
             root = tk.Tk()
             root.attributes("-topmost", True)
             root.withdraw()  # Hide the main window
@@ -99,7 +92,6 @@ class Documents:
                 print("No file selected.")
                 return None
         else:
-            app = QApplication([])
             win = DocumentUploadApp()
             path = win.show_dialog()
             win.show()
@@ -117,26 +109,36 @@ class Documents:
         """
         if file_path:
             # Create a directory for the student
-            student_directory = f"./documents"
+            student_directory = "./documents"
             os.makedirs(student_directory, exist_ok=True)
 
             file_name = file_path.split("/")[-1]  # Extract the file name from the path
-            new_file_name = str(int(time.time())) + '_' + username + '_'  + file_name.replace(' ', '_')
+            new_file_name = (
+                str(int(time.time()))
+                + "_"
+                + username
+                + "_"
+                + file_name.replace(" ", "_")
+            )
             new_path = f"./documents/{new_file_name}"
 
             with open(file_path, "rb") as source, open(new_path, "wb") as destination:
                 destination.write(source.read())
-                
-            con = sqlite3.connect('database/student.db')
+
+            con = sqlite3.connect("database/student.db")
             cur = con.cursor()
-            
+
             query = """INSERT INTO document (student_id, doc_name)
                        VALUES (?,?)"""
-                       
+
             cur.execute(query, (student_id, new_file_name))
-            
+
             con.commit()
             con.close()
+
+
+from PyQt5 import QFileDialog, QWidget
+
 
 class DocumentUploadApp(QWidget):
     def __init__(self):
@@ -144,7 +146,7 @@ class DocumentUploadApp(QWidget):
 
     def show_dialog(self):
         options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
+        options = QFileDialog.DontUseNativeDialog
         selected_path, _ = QFileDialog.getOpenFileName(
             self,
             "Select Documents",
@@ -159,4 +161,4 @@ class DocumentUploadApp(QWidget):
 
 
 if __name__ == "__main__":
-    doc = Documents('gsingh123')
+    doc = Documents("gsingh123")

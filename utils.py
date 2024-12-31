@@ -1,25 +1,14 @@
-"""
-Assignment 6: Final Project
-
-This file has all the common functions that several files are using.
-
-@author: Gagandeep Singh
-Date: December 2, 2023
-"""
-
+import hashlib
 import os
 import pickle
-import textwrap
 import sqlite3
-import hashlib
+import textwrap
 
 # Getting the path to current working directory.
 CURRENT_PATH = os.getcwd()
 
 # deciding the valid domains.
-VALID_DOMAINS = ["gmail.com", "rrc.ca", "academic.rrc.ca", "outlook.com",
-                 "icloud.com"]
-
+VALID_DOMAINS = ["gmail.com", "rrc.ca", "academic.rrc.ca", "outlook.com", "icloud.com"]
 
 # Defining the constants
 DISCOUNT = 5  # in percentage (%)
@@ -130,7 +119,7 @@ def print_student_details(username):
     Returns:
         None
     """
-    con = sqlite3.connect('database/student.db')
+    con = sqlite3.connect("database/student.db")
     cur = con.cursor()
 
     query = "SELECT * FROM people WHERE username = ?"
@@ -141,7 +130,7 @@ def print_student_details(username):
     # Displaying the details student have entered.
     print("\nConfirm your Student Details:")
     print("-" * 30)
-    print("| Name:         ", current_student[1] + ' ' + current_student[2])
+    print("| Name:         ", current_student[1] + " " + current_student[2])
     print("| Date Of Birth:", current_student[3])
     print("| Email:        ", current_student[4])
     print("| Phone:        ", current_student[7])
@@ -165,8 +154,9 @@ def clear_terminal():
     """
     os.system("cls" if os.name == "nt" else "clear")
 
+
 def register_courses(username, courses):
-    con = sqlite3.connect('database/student.db')
+    con = sqlite3.connect("database/student.db")
     cur = con.cursor()
 
     s_id = get_student_id(username)
@@ -177,22 +167,25 @@ def register_courses(username, courses):
     con.commit()
     con.close()
 
+
 def fetch_user(user_name):
-    conn = sqlite3.connect('database/student.db')
+    conn = sqlite3.connect("database/student.db")
     cursor = conn.cursor()
 
     res = cursor.execute(f"""SELECT * FROM user WHERE user_name = '{user_name}'""")
     return res.fetchall()[0]
 
+
 def get_user_names():
-    conn = sqlite3.connect('database/student.db')
+    conn = sqlite3.connect("database/student.db")
     cursor = conn.cursor()
 
-    res = cursor.execute(f"""SELECT username FROM student""")
+    res = cursor.execute("""SELECT username FROM student""")
     return res.fetchall()
 
+
 def get_student_id(username):
-    con = sqlite3.connect('database/student.db')
+    con = sqlite3.connect("database/student.db")
     cur = con.cursor()
 
     p_id = get_p_id(username)
@@ -206,20 +199,22 @@ def get_student_id(username):
 
     return student_id
 
+
 def get_p_id(username):
     query = """SELECT p_id FROM people WHERE username = ?"""
 
-    con = sqlite3.connect('database/student.db')
+    con = sqlite3.connect("database/student.db")
     cur = con.cursor()
 
-    p_id = cur.execute(query, (username, )).fetchone()[0]
+    p_id = cur.execute(query, (username,)).fetchone()[0]
 
     con.close()
 
     return p_id
 
+
 def get_status(username):
-    con = sqlite3.connect('database/student.db')
+    con = sqlite3.connect("database/student.db")
     cur = con.cursor()
 
     query = """SELECT status FROM student WHERE p_id = ?"""
@@ -231,20 +226,22 @@ def get_status(username):
 
     return status
 
+
 def set_status(username, status):
-    con = sqlite3.connect('database/student.db')
+    con = sqlite3.connect("database/student.db")
     cur = con.cursor()
 
     p_id = get_p_id(username)
-    query = f"UPDATE student SET status = ? WHERE p_id = ?"
+    query = "UPDATE student SET status = ? WHERE p_id = ?"
 
     cur.execute(query, (status, p_id))
 
     con.commit()
     con.close()
 
+
 def update_value(username, column, value):
-    con = sqlite3.connect('database/student.db')
+    con = sqlite3.connect("database/student.db")
     cur = con.cursor()
 
     query = f"UPDATE student SET {column} = ? WHERE username = ?"
@@ -254,12 +251,13 @@ def update_value(username, column, value):
     con.commit()
     con.close()
 
-def get_details(username, columns:tuple = ()):
-    con = sqlite3.connect('database/student.db')
+
+def get_details(username, columns: tuple = ()):
+    con = sqlite3.connect("database/student.db")
     cur = con.cursor()
 
     if not columns == ():
-        cols = ', '.join(columns)
+        cols = ", ".join(columns)
         query = f"SELECT {cols} FROM people WHERE username='{username}'"
     else:
         query = f"SELECT * FROM people WHERE username='{username}'"
@@ -269,6 +267,7 @@ def get_details(username, columns:tuple = ()):
     con.close()
 
     return current_student
+
 
 def insert_user(username, password):
     query = """INSERT INTO people (username, password) VALUES (?, ?)"""
@@ -283,11 +282,12 @@ def insert_user(username, password):
 
     con.close()
 
+
 def insert_student_details(username, f_name, l_name, dob, email, phone, addr):
-    con = sqlite3.connect('database/student.db')
+    con = sqlite3.connect("database/student.db")
     cur = con.cursor()
 
-    query = f"""UPDATE people SET (first_name
+    query = """UPDATE people SET (first_name
                                   , last_name
                                   , dob
                                   , email
@@ -296,60 +296,55 @@ def insert_student_details(username, f_name, l_name, dob, email, phone, addr):
                     = (?,?,?,?,?,?)
                     WHERE username=?"""
 
-    cur.execute(query, (f_name
-                      , l_name
-                      , dob
-                      , email
-                      , phone
-                      , addr
-                      , username))
-    
+    cur.execute(query, (f_name, l_name, dob, email, phone, addr, username))
 
     con.commit()
     con.close()
 
-def register_student(username): 
-    p_id_query = '''select p_id from people where username = ?'''
-    query = '''INSERT INTO student (p_id) VALUES (?)'''
 
-    con = sqlite3.connect('database/student.db')
+def register_student(username):
+    p_id_query = """select p_id from people where username = ?"""
+    query = """INSERT INTO student (p_id) VALUES (?)"""
+
+    con = sqlite3.connect("database/student.db")
     cur = con.cursor()
 
-    p_id = cur.execute(p_id_query, (username, )).fetchone()[0]
-    cur.execute(query, (p_id, ))
+    p_id = cur.execute(p_id_query, (username,)).fetchone()[0]
+    cur.execute(query, (p_id,))
 
     con.commit()
     con.close()
 
 
 def value_exists(table, column, value):
-        """
-        Check if a value exists in a specified column of a table.
+    """
+    Check if a value exists in a specified column of a table.
 
-        Parameters:
-        table (str): The name of the table.
-        column (str): The name of the column.
-        value (str): The value to check for.
+    Parameters:
+    table (str): The name of the table.
+    column (str): The name of the column.
+    value (str): The value to check for.
 
-        Returns:
-        bool: True if the value exists, False otherwise.
-        """
-        con = sqlite3.connect("database/student.db")
-        cur = con.cursor()
-
-        query = f"SELECT 1 FROM {table} WHERE {column} = ?"
-        cur.execute(query, (value,))
-        result = cur.fetchone()
-
-        con.close()
-
-        return result is not None
-
-def get_tax(tax_type):
-    con = sqlite3.connect('database/student.db')
+    Returns:
+    bool: True if the value exists, False otherwise.
+    """
+    con = sqlite3.connect("database/student.db")
     cur = con.cursor()
 
-    query = '''SELECT tax_perc from tax WHERE tax_end IS NULL and tax_type = ?'''
+    query = f"SELECT 1 FROM {table} WHERE {column} = ?"
+    cur.execute(query, (value,))
+    result = cur.fetchone()
+
+    con.close()
+
+    return result is not None
+
+
+def get_tax(tax_type):
+    con = sqlite3.connect("database/student.db")
+    cur = con.cursor()
+
+    query = """SELECT tax_perc from tax WHERE tax_end IS NULL and tax_type = ?"""
 
     res = cur.execute(query, (tax_type,)).fetchone()[0]
 
@@ -357,8 +352,10 @@ def get_tax(tax_type):
     con.close()
     return res
 
+
 def MD5(password):
     return hashlib.md5(password.encode()).hexdigest()
+
 
 class PhoneAlreadyExistsError(Exception):
     """phone number aleary in use"""
@@ -410,4 +407,4 @@ if __name__ == "__main__":
     # username = 'gsingh456'
     # register_student(username)
 
-    register_courses('gsingh456', [1001, 1002, 1004])
+    register_courses("gsingh456", [1001, 1002, 1004])

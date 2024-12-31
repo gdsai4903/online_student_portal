@@ -1,6 +1,6 @@
-from os import truncate
 import sqlite3
-from functions import *
+
+import utils
 
 
 def create_database():
@@ -10,13 +10,14 @@ def create_database():
     con = sqlite3.connect("database/student.db")
     con.close()
 
+
 def create_people_table():
     # create connection to the database
     con = sqlite3.connect("database/student.db")
     cur = con.cursor()
 
     # Drop the table if it exists
-    db_drop_query = '''DROP TABLE IF EXISTS people'''
+    db_drop_query = """DROP TABLE IF EXISTS people"""
 
     # Create the table to hold the student data
     people_table_query = """CREATE TABLE IF NOT EXISTS people (
@@ -32,25 +33,29 @@ def create_people_table():
     , active        BIT             NOT NULL DEFAULT  1
     )"""
 
-    populate_student_table = f"""INSERT INTO people
+    populate_student_table = """INSERT INTO people
            (first_name , last_name , dob , email, username, password, phone, addr)
     VALUES ('Bavleen', 'Kaur', '2003-09-04', "abc@def.com", 'bkaur123', ?, '123-456-7890', '123 That Rd')
-         , ('Gagandeep', 'Singh', '2001-09-24', "abc@gmail.com", 'gsingh456', ?, '098-765-4321', '124 This Rd')
+         , ('Gagandeep', 'Singh', '2001-09-24', "tocontactgagan@gmail.com", 'gsingh456', ?, '098-765-4321', '124 This Rd')
          , ('Simranpreet', 'Singh', '2003-12-24', "ghi@def.com", 'ssingh789', ?, '098-123-4321', '999 Demo Rd');"""
 
     cur.execute(db_drop_query)
     cur.execute(people_table_query)
 
-    cur.execute(populate_student_table, (MD5('bkkb'), MD5('gssg'), MD5('ssss')))
+    cur.execute(
+        populate_student_table,
+        (utils.MD5("bkkb"), utils.MD5("gssg"), utils.MD5("ssss")),
+    )
 
     con.commit()
     con.close()
 
+
 def create_student_table():
-    con = sqlite3.connect('database/student.db')
+    con = sqlite3.connect("database/student.db")
     cur = con.cursor()
 
-    db_drop_query = '''DROP TABLE IF EXISTS student'''
+    db_drop_query = """DROP TABLE IF EXISTS student"""
     student_table_query = """CREATE TABLE  IF NOT EXISTS student (
       student_id  INTEGER     PRIMARY KEY AUTOINCREMENT
     , p_id        INTEGER
@@ -58,11 +63,11 @@ def create_student_table():
     , active      BIT         NOT NULL DEFAULT 1
     , CONSTRAINT  people__FK  FOREIGN KEY (p_id) REFERENCES people
     )"""
-    
-    populate_student_query = '''INSERT INTO student
-        (p_id) VALUES (1), (2), (3)
-    '''
-    
+
+    populate_student_query = """INSERT INTO student
+        (p_id, status) VALUES (1, "C"), (2, "C"), (3, "C")
+    """
+
     cur.execute(db_drop_query)
     cur.execute(student_table_query)
 
@@ -76,12 +81,12 @@ def create_student_table():
 
     # set_initial_id('student', 100001)
 
+
 def create_document_table():
-    con = sqlite3.connect('database/student.db')
+    con = sqlite3.connect("database/student.db")
     cur = con.cursor()
 
-
-    db_drop_query = '''DROP TABLE IF EXISTS document'''
+    db_drop_query = """DROP TABLE IF EXISTS document"""
     document_table_query = """CREATE TABLE  IF NOT EXISTS document (
       document_id INTEGER     PRIMARY  KEY AUTOINCREMENT
     , student_id  INTEGER
@@ -97,11 +102,12 @@ def create_document_table():
     con.commit()
     con.close()
 
+
 def create_course_table():
-    con = sqlite3.connect('database/student.db')
+    con = sqlite3.connect("database/student.db")
     cur = con.cursor()
 
-    db_drop_query = '''DROP TABLE IF EXISTS course'''
+    db_drop_query = """DROP TABLE IF EXISTS course"""
 
     course_table_query = """CREATE TABLE  IF NOT EXISTS course (
       course_id    INTEGER PRIMARY KEY AUTOINCREMENT
@@ -120,8 +126,10 @@ def create_course_table():
 
     cur.execute(db_drop_query)
     cur.execute(course_table_query)
-    
-    cur.execute("INSERT INTO course (course_id, course_name) VALUES (?, 'dummy')", (1000,))
+
+    cur.execute(
+        "INSERT INTO course (course_id, course_name) VALUES (?, 'dummy')", (1000,)
+    )
     cur.execute("DELETE FROM course WHERE course_id = ?", (1000,))
 
     cur.execute(populate_course_table)
@@ -129,12 +137,13 @@ def create_course_table():
     con.commit()
     con.close()
 
+
 def create_student_course_table():
-    con = sqlite3.connect('database/student.db')
+    con = sqlite3.connect("database/student.db")
     cur = con.cursor()
 
-    db_drop_query = '''DROP TABLE IF EXISTS student_course'''
-    create_query = '''CREATE TABLE IF NOT EXISTS student_course (
+    db_drop_query = """DROP TABLE IF EXISTS student_course"""
+    create_query = """CREATE TABLE IF NOT EXISTS student_course (
       student_id INTEGER   
     , course_id  INTEGER   
     , date       TIMESTAMP DEFAULT  CURRENT_TIMESTAMP
@@ -142,7 +151,7 @@ def create_student_course_table():
     , PRIMARY KEY(student_id, course_id)
     , CONSTRAINT stu__FK   FOREIGN  KEY (student_id) REFERENCES student
     , CONSTRAINT cor__FK   FOREIGN  KEY (course_id) REFERENCES course
-    )'''
+    )"""
 
     cur.execute(db_drop_query)
     cur.execute(create_query)
@@ -150,11 +159,12 @@ def create_student_course_table():
     con.commit()
     con.close()
 
+
 def create_amenity_table():
-    con = sqlite3.connect('database/student.db')
+    con = sqlite3.connect("database/student.db")
     cur = con.cursor()
 
-    db_drop_query = '''DROP TABLE IF EXISTS amenity'''
+    db_drop_query = """DROP TABLE IF EXISTS amenity"""
 
     amenity_table_query = """CREATE TABLE  IF NOT EXISTS amenity (
       amenity_id    INTEGER PRIMARY KEY AUTOINCREMENT
@@ -176,11 +186,12 @@ def create_amenity_table():
     con.commit()
     con.close()
 
+
 def create_tax_table():
-    con = sqlite3.connect('database/student.db')
+    con = sqlite3.connect("database/student.db")
     cur = con.cursor()
 
-    db_drop_query = '''DROP TABLE IF EXISTS tax'''
+    db_drop_query = """DROP TABLE IF EXISTS tax"""
 
     tax_table_query = """CREATE TABLE IF NOT EXISTS tax (
       tax_id   INTEGER PRIMARY  KEY AUTOINCREMENT
@@ -205,6 +216,7 @@ def create_tax_table():
     con.commit()
     con.close()
 
+
 def set_initial_course_id(start_id):
     """
     Set the initial student_id for the AUTOINCREMENT to start from a specific value
@@ -213,21 +225,11 @@ def set_initial_course_id(start_id):
     cur = con.cursor()
 
     # Insert a dummy record to initialize sqlite_sequence if not already initialized
-    cur.execute("INSERT INTO course (course_id, course_name) VALUES (?, 'dummy')", (start_id-1,))
-    cur.execute("DELETE FROM course WHERE course_id = ?", (start_id-1,))
-
-    con.commit()
-    con.close()
-
-def set_initial_ids():
-    """
-    Set the initial student_id for the AUTOINCREMENT to start from a specific value
-    """
-    con = sqlite3.connect("database/student.db")
-    cur = con.cursor()
-
-
-
+    cur.execute(
+        "INSERT INTO course (course_id, course_name) VALUES (?, 'dummy')",
+        (start_id - 1,),
+    )
+    cur.execute("DELETE FROM course WHERE course_id = ?", (start_id - 1,))
 
     con.commit()
     con.close()
@@ -242,6 +244,7 @@ if __name__ == "__main__":
     create_student_course_table()
     create_amenity_table()
     create_tax_table()
-    set_initial_ids()
+
+    # utils.update_value("gsingh456", "status", "C")
 
     # set_status('gsingh456', 'A')
