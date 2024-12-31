@@ -1,12 +1,3 @@
-"""
-Assignment 6: Final Project
-
-This file has the scripts for the student detials section.
-
-@author: Gagandeep Singh
-Date: December 2, 2023
-"""
-
 import datetime
 import sqlite3
 
@@ -168,7 +159,13 @@ class Student:
                 if utils.value_exists("people", "email", student_email):
                     raise utils.EmailAlreadyExistsError
 
-                mailing.verify_email(student_email, self.first_name)
+                mailing.verify_email(
+                    username=self.username,
+                    purpose="register",
+                    email=student_email,
+                    first_name=self.first_name,
+                    last_name=self.last_name,
+                )
 
                 break
 

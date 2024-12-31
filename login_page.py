@@ -1,12 +1,3 @@
-"""
-Assignment 6: Final Project
-
-This file has the login and the register scripts.
-
-@author: Gagandeep Singh
-Date: December 2, 2023
-"""
-
 import getpass
 import platform
 import re

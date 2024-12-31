@@ -921,24 +921,23 @@ def send_offer_letter(username):
     send_mail(receiver_email, subject, body)
 
 
-def send_otp(username, otp, purpose, fee=None):
+def send_otp(username, otp, purpose, fee=None, **kwargs):
     """
     Send email for otp
 
     Args:
-      student_email (str): student email
-      student_name (str): student name
+      username(str): username of the sutdent
       otp (int): otp
       purpose (str): purpose of otp
       fee (float): fee of otp
     """
-    # Email configuration
-    details = get_details(username, ("email", "first_name", "last_name"))
-    receiver_email = details[0]
-    student_name = details[1] + " " + details[2]
 
     # OTP email in HTML
     if purpose == "register":
+        # Email configuration
+        receiver_email = kwargs["email"]
+        student_name = kwargs["first_name"] + " " + kwargs["last_name"]
+
         subject = "Email Verification OTP."
         body = f"""<html>
                 <body>
@@ -952,6 +951,10 @@ def send_otp(username, otp, purpose, fee=None):
             </html>"""
 
     elif purpose == "payment":
+        details = get_details(username, ("email", "first_name", "last_name"))[0]
+        receiver_email = details[0]
+        student_name = details[1] + " " + details[2]
+
         subject = "Payment Verification OTP."
         body = f"""<html>
                 <body>
@@ -968,21 +971,20 @@ def send_otp(username, otp, purpose, fee=None):
     send_mail(receiver_email, subject, body)
 
 
-def verify_email(username, purpose="register", fee=None):
+def verify_email(username, purpose="register", fee=None, **kwargs):
     """
     Verify email
 
     Args:
     student_email (str): student email
-    student_name (str): student name
     purpose (str): purpose
-    fee (float): fee
+    fee (float): total amount of fee due
     """
     # creating otp
     otp = random.randint(100000, 999999)
 
     # Sending otp via email
-    send_otp(username, otp, purpose, fee)
+    send_otp(username, otp, purpose, fee, **kwargs)
     email = get_details(username, ("email",))[0]
     while True:
         try:
