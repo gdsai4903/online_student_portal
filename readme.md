@@ -1,6 +1,6 @@
 # Online Student Portal
 
-#### Video Demo: [INSERT VIDEO URL HERE]
+#### Video Demo: []
 
 #### Description:
 
@@ -87,7 +87,7 @@ The project is organized into multiple Python files for modularity and readabili
 1. Clone the repository to your local machine.
 
    ```bash
-   git clone [REPOSITORY_URL]
+   git clone [https://github.com/gdsai4903/online_student_portal]
    ```
 
 2. Navigate to the project directory.
