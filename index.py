@@ -116,6 +116,7 @@ def main():
 
             elif choice == 3:
                 if utils.get_status(username) == "C":
+                    utils.print_header("FEE PAYMENT", "Red River College Polytech")
                     utils.print_message(
                         "WARNING", "you need to enter your details first"
                     )

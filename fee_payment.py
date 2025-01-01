@@ -273,7 +273,7 @@ class MakePayment:
                     print(e)
 
             except Exception as e:
-                print_message(
+                utils.print_message(
                     "Warning!",
                     f"There was an error registering for courses.{e} Your status was not changed. ",
                 )
@@ -326,5 +326,5 @@ class MakePayment:
 
 
 if __name__ == "__main__":
-    MakePayment("gsingh456")
+    MakePayment("gdsai4903")
     # get_details('gsingh123', ('email', 'first_name'))

@@ -3,6 +3,8 @@ import platform
 import sqlite3
 import time
 
+from PyQt5.QtWidgets import QApplication, QFileDialog, QWidget
+
 import utils
 
 
@@ -16,11 +18,13 @@ class Documents:
 
         # Checking if the student is already approved or enrolled.
         if status == "A":
+            utils.print_header("UPLOAD DOCUMENTS", "Red River College Polytech")
             print("\n" + "ATTENTION".center(utils.WIDTH))
             print(("-" * 40).center(utils.WIDTH))
             print("*you have already" " uploaded your documents*".center(utils.WIDTH))
 
         elif status == "E":
+            utils.print_header("UPLOAD DOCUMENTS", "Red River College Polytech")
             print("\n" + "ATTENTION".center(utils.WIDTH))
             print(("-" * 40).center(utils.WIDTH))
             print("*you are already enrolled, no need to submit*".center(utils.WIDTH))
@@ -92,6 +96,7 @@ class Documents:
                 print("No file selected.")
                 return None
         else:
+            app = QApplication([])
             win = DocumentUploadApp()
             path = win.show_dialog()
             win.show()
@@ -137,9 +142,6 @@ class Documents:
             con.close()
 
 
-from PyQt5 import QFileDialog, QWidget
-
-
 class DocumentUploadApp(QWidget):
     def __init__(self):
         super().__init__()
@@ -161,4 +163,4 @@ class DocumentUploadApp(QWidget):
 
 
 if __name__ == "__main__":
-    doc = Documents("gsingh123")
+    doc = Documents("gsingh456")
