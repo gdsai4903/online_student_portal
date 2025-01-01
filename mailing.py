@@ -959,8 +959,6 @@ def send_otp(username, otp, purpose, fee=None, **kwargs):
                 </body>
             </html>"""
 
-        print(details)
-        print(receiver_email)
     send_mail(receiver_email, subject, body)
 
 
