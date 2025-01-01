@@ -942,7 +942,7 @@ def send_otp(username, otp, purpose, fee=None, **kwargs):
             </html>"""
 
     elif purpose == "payment":
-        details = get_details(username, ("email", "first_name", "last_name"))[0]
+        details = get_details(username, ("email", "first_name", "last_name"))
         receiver_email = details[0]
         student_name = details[1] + " " + details[2]
 
@@ -959,6 +959,8 @@ def send_otp(username, otp, purpose, fee=None, **kwargs):
                 </body>
             </html>"""
 
+        print(details)
+        print(receiver_email)
     send_mail(receiver_email, subject, body)
 
 

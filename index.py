@@ -106,7 +106,7 @@ def main():
                     utils.print_message(
                         "WARNING", "you need to enter your details first"
                     )
-                elif utils.get_status(username) == "C":
+                else:
                     from documents import Documents
 
                     Documents(username)
